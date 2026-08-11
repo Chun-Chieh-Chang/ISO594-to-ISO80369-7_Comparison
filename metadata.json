@@ -1,0 +1,6 @@
+{
+  "name": "ISO 594 至 ISO 80369-7 魯爾接頭圖面轉版比對與工程審查系統",
+  "description": "深度比對 ISO 594-1/594-2 與 ISO 80369-7:2021 魯爾接頭規範之尺寸公差、測量基準面位移 (Datum Shift)、幾何特徵變更、物理測試方法與 R&D/CAD 審查工具。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="50%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="luerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0284C7" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  
+  <!-- Subtle Grid Pattern -->
+  <path d="M64 128 h384 M64 256 h384 M64 384 h384 M128 64 v384 M256 64 v384 M384 64 v384" 
+        stroke="#334155" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="4 4" />
+
+  <!-- Outer Luer Male Taper Lock (ISO 80369-7 Silhouette) -->
+  <g filter="url(#glow)">
+    <!-- 6% Taper Male Conical Nozzle -->
+    <path d="M196 140 L316 140 L296 320 L216 320 Z" 
+          fill="url(#luerGrad)" opacity="0.9" />
+
+    <!-- Lumen / Inner Bore -->
+    <path d="M236 140 L276 140 L268 320 L244 320 Z" 
+          fill="#0F172A" />
+
+    <!-- Datum Plane Shift Indicator (0.75mm shift plane) -->
+    <line x1="160" y1="210" x2="352" y2="210" 
+          stroke="#EF4444" stroke-width="4" stroke-dasharray="6 3" />
+    
+    <!-- Male Luer Lock Outer Collar / Thread Wings -->
+    <path d="M160 320 L352 320 L368 390 L144 390 Z" 
+          fill="#1E293B" stroke="#60A5FA" stroke-width="5" />
+          
+    <path d="M144 340 L120 355 L144 370 Z M368 340 L392 355 L368 370 Z" 
+          fill="#38BDF8" />
+  </g>
+
+  <!-- Engineering Dimension Crosshairs & Caliper Marks -->
+  <g stroke="url(#accentGrad)" stroke-width="3.5" stroke-linecap="round">
+    <line x1="96" y1="210" x2="140" y2="210" />
+    <line x1="372" y1="210" x2="416" y2="210" />
+    
+    <!-- Dimension arrows -->
+    <path d="M110 202 L96 210 L110 218 M402 202 L416 210 L402 218" fill="none" />
+  </g>
+
+  <!-- Badge Text: ISO 80369-7 -->
+  <rect x="116" y="420" width="280" height="42" rx="21" fill="#0F172A" stroke="#38BDF8" stroke-width="2" />
+  <text x="256" y="448" fill="#F8FAFC" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="900" text-anchor="middle" letter-spacing="1.5">
+    ISO 80369-7
+  </text>
+</svg>

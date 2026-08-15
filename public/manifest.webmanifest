@@ -1,0 +1,49 @@
+{
+  "name": "ISO 594 轉 ISO 80369-7 魯爾接頭圖面轉版比對與工程審查系統",
+  "short_name": "LuerAudit",
+  "description": "醫療器材魯爾接頭 ISO 594 轉 ISO 80369-7 圖面轉版審查、基準位移計算與公差比對系統",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
+  "categories": ["medical", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "CAD 評估計算器",
+      "short_name": "計算器",
+      "description": "計算 0.75mm 基準位移後之公母接頭外徑與公差",
+      "url": "./?tab=calculator",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "尺寸比對表",
+      "short_name": "尺寸表",
+      "description": "查看 ISO 594 與 ISO 80369-7 逐一尺寸對照",
+      "url": "./?tab=tables",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "R&D 審查清單",
+      "short_name": "行動清單",
+      "description": "圖面轉版 10 大關鍵檢查項目與 ECO 生成",
+      "url": "./?tab=checklist",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}

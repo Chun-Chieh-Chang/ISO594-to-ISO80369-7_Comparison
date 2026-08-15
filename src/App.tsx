@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header, ActiveTab } from './components/Header';
 import { DatumShiftVisualizer } from './components/DatumShiftVisualizer';
 import { DimensionTables } from './components/DimensionTables';
@@ -6,6 +6,8 @@ import { DimensionCalculator } from './components/DimensionCalculator';
 import { TestRequirementsTable } from './components/TestRequirementsTable';
 import { ActionChecklist } from './components/ActionChecklist';
 import { MaterialGuide } from './components/MaterialGuide';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { PwaUpdateToast } from './components/PwaUpdateToast';
 import { ConnectorCategory } from './types';
 import { ArrowRight, AlertOctagon } from 'lucide-react';
 
@@ -13,46 +15,101 @@ export function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('tables');
   const [selectedCategory, setSelectedCategory] = useState<ConnectorCategory>('male-slip');
 
+  // Handle URL query parameter for PWA shortcuts (e.g. ?tab=calculator)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab') as ActiveTab;
+    const validTabs: ActiveTab[] = ['tables', 'visualizer', 'calculator', 'tests', 'materials', 'checklist'];
+    if (tabParam && validTabs.includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col selection:bg-blue-500 selection:text-white">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Executive Summary Alert Banner */}
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-5 shadow-sm mb-8 relative overflow-hidden">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5">
-              <div className="p-2.5 bg-amber-500 text-white rounded-lg font-black shrink-0 mt-0.5 shadow-sm">
-                <AlertOctagon className="w-6 h-6" />
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28 md:pb-8">
+        {/* Engineering Migration Technical Overview Banner */}
+        <section className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  技術審查指引
+                </span>
+                <span className="text-xs font-mono text-slate-500">
+                  ISO 594 ➔ ISO 80369-7 轉換核心變更
+                </span>
               </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[13px] font-mono font-black uppercase tracking-wider text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full border border-amber-300">
-                    CRITICAL WARNING // 4 FATAL AUDIT BLIND SPOTS
-                  </span>
-                </div>
-                <h2 className="text-base font-black text-slate-900 uppercase tracking-tight">
-                  工程部門圖面轉版四大致命盲點警告 (Engineering Audit Alert)
-                </h2>
-                <p className="text-[13px] text-slate-700 mt-1.5 leading-relaxed max-w-4xl">
-                  工程單位若「直接在圖面上將 ISO 594 改寫為 ISO 80369-7」，將面臨法規退件或召回風險！<br />
-                  <strong className="text-amber-800 uppercase font-black font-mono">盲點一：</strong>0.75mm 基準位移導致剖面數值增加 (+0.045mm)。
-                  <strong className="text-rose-800 uppercase font-black font-mono"> 盲點二：</strong>公接頭內孔 Øf 強制限制 ≤ 2.900mm。
-                  <strong className="text-purple-800 uppercase font-black font-mono"> 盲點三：</strong>母鎖固凸耳廢除 F 及 V 弦長改為 N1/N2/ØJ。
-                  <strong className="text-emerald-800 uppercase font-black font-mono"> 盲點四：</strong>廢除金屬塞規，採真空/氣壓定量檢測。
-                </p>
-              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                魯爾接頭圖面轉版工程審查要點
+              </h2>
+              <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                圖面轉版需實質校驗幾何尺寸與量測方法，請務必依循以下四項核心技術變更進行審查：
+              </p>
             </div>
 
             <button
               onClick={() => setActiveTab('checklist')}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[13px] uppercase tracking-wider rounded-lg flex items-center gap-2 shrink-0 shadow-sm transition-all self-start md:self-auto"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 active:scale-98 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-sm transition-all shrink-0 self-start lg:self-auto"
             >
-              開啟 R&amp;D 圖面審查 Checklist
+              開啟 R&amp;D 審查清單
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-        </div>
+
+          {/* 4-Pillar Engineering Changes Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-5">
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 hover:border-slate-300 transition-all">
+              <div className="text-xs font-mono font-bold text-amber-700 uppercase tracking-wider mb-1">
+                變更 01 // 基準面平移
+              </div>
+              <div className="text-sm font-bold text-slate-900 mb-1">
+                0.75mm 基準位移
+              </div>
+              <p className="text-xs text-slate-600 leading-normal">
+                基準面自接頭末端內移 0.75mm，名義外徑由 4.000mm 調為 4.045mm。
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 hover:border-slate-300 transition-all">
+              <div className="text-xs font-mono font-bold text-rose-700 uppercase tracking-wider mb-1">
+                變更 02 // 內孔規格約束
+              </div>
+              <div className="text-sm font-bold text-slate-900 mb-1">
+                內孔上限 Øf ≤ 2.900mm
+              </div>
+              <p className="text-xs text-slate-600 leading-normal">
+                強制限制內徑上限，防止誤插入非相容管路，需同步確認流阻與模具針徑。
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 hover:border-slate-300 transition-all">
+              <div className="text-xs font-mono font-bold text-indigo-700 uppercase tracking-wider mb-1">
+                變更 03 // 母凸耳標註重構
+              </div>
+              <div className="text-sm font-bold text-slate-900 mb-1">
+                改採 N1/N2/ØJ 座標定義
+              </div>
+              <p className="text-xs text-slate-600 leading-normal">
+                廢除原 ISO 594 的 F/V 弦長標註，改由三維幾何外徑與厚度精準約束。
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 hover:border-slate-300 transition-all">
+              <div className="text-xs font-mono font-bold text-emerald-700 uppercase tracking-wider mb-1">
+                變更 04 // 檢測方法升級
+              </div>
+              <div className="text-sm font-bold text-slate-900 mb-1">
+                定量氣密與負壓測試
+              </div>
+              <p className="text-xs text-slate-600 leading-normal">
+                全面廢除傳統金屬塞規手動手感檢測，改採定量壓力衰減自動化驗證。
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* Tab View Switching - MECE Strict Single View Rendering */}
         {activeTab === 'tables' && (
@@ -95,8 +152,14 @@ export function App() {
         )}
       </main>
 
+      {/* Mobile Bottom Navigation Bar (< md screens) */}
+      <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* PWA Update Toast Notification */}
+      <PwaUpdateToast />
+
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 mt-12 text-center text-[13px] text-slate-600 font-mono">
+      <footer className="bg-white border-t border-slate-200 py-6 text-center text-[13px] text-slate-600 font-mono hidden md:block">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 font-bold">
           <div>
             ISO 594-1 / ISO 594-2 ➔ ISO 80369-7:2021 AUDIT SUITE
@@ -113,3 +176,4 @@ export function App() {
 }
 
 export default App;
+

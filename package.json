@@ -1,7 +1,8 @@
 {
-  "name": "react-example",
+  "name": "iso594-to-iso80369-7-audit-suite",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.1.0",
+  "description": "ISO 594 至 ISO 80369-7 魯爾接頭圖面轉版比對與工程審查系統",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",

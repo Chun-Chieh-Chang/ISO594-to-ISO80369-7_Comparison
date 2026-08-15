@@ -150,8 +150,13 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
             </div>
 
             {/* PWA Install Banner inside Drawer */}
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-slate-100 space-y-3">
               <PwaInstallPrompt variant="banner" />
+              
+              <div className="text-center text-[10px] text-slate-400 font-sans space-y-0.5 pt-1">
+                <div>Developed by <strong className="text-slate-600 font-semibold">Wesley Chang</strong> @Mouldex, Aug-2026.</div>
+                <div>© 2026 Mouldex. All rights reserved.</div>
+              </div>
             </div>
           </div>
         </div>

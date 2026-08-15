@@ -41,3 +41,10 @@
   - 手機版（< 768px）精緻底部導航欄（Bottom Navigation Bar）與 Safe Area 適配。
   - 移除浮誇高飽和度 AI 漸層與聳動文字，改採工業醫療等級莫蘭迪色調與嚴謹 4-Grid 資訊架構。
   - 觸控熱區 ≥ 44x44px，字體符合標準層級。
+- [x] **品牌與作者署名宣告**：
+  - 全站頁尾與手機版抽屜底部加入「Developed by Wesley Chang @Mouldex, Aug-2026.」及「© 2026 Mouldex. All rights reserved.」。
+- [x] **專案整體程式碼與檔案優化 (MECE Project Refactor & Cleanup)**：
+  - 清理舊樣板標頭與相依名稱，更新 `package.json`（版本提升至 `v1.1.0`）。
+  - 重構 `README.md`，建立完整的 7 大核心模組手冊、技術棧與作者版權說明。
+  - 盤點所有 `src/components` 與 `src/data` 檔案結構，確保 100% MECE 且無死碼。
+

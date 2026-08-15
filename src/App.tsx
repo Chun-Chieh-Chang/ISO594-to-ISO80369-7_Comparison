@@ -159,15 +159,26 @@ export function App() {
       <PwaUpdateToast />
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-[13px] text-slate-600 font-mono hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 font-bold">
-          <div>
-            ISO 594-1 / ISO 594-2 ➔ ISO 80369-7:2021 AUDIT SUITE
+      <footer className="bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-500 font-sans">
+        <div className="max-w-7xl mx-auto px-4 space-y-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[11px] sm:text-xs text-slate-600 font-semibold">
+            <div>
+              ISO 594-1 / ISO 594-2 ➔ ISO 80369-7:2021 AUDIT SUITE
+            </div>
+            <div className="flex items-center gap-3 text-slate-400">
+              <span>ISO 80369-7:2021 Table B.1 - B.6</span>
+              <span>•</span>
+              <span>FDA Recognized Consensus Standard</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-slate-500 text-[13px]">
-            <span>ISO 80369-7:2021 Table B.1 - B.6</span>
-            <span>•</span>
-            <span>FDA Recognized Consensus Standard</span>
+
+          <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-1 text-[11px] text-slate-400">
+            <div>
+              Developed by <strong className="text-slate-700 font-semibold">Wesley Chang</strong> @Mouldex, Aug-2026.
+            </div>
+            <div>
+              © 2026 Mouldex. All rights reserved.
+            </div>
           </div>
         </div>
       </footer>

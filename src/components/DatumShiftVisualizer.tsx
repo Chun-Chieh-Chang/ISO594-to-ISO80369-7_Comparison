@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MaterialType } from '../types';
+import { BandGroup, ToleranceBandChart } from './ToleranceBandChart';
 import { Layers, CheckCircle2, Cpu, AlertTriangle } from 'lucide-react';
 
 interface Props {
@@ -32,6 +33,12 @@ function bands(side: Side, material: MaterialType): { old: Band; next: Band; pur
   return { old, next, pureShift: material === 'rigid' };
 }
 
+/** 尺標的顯示範圍：涵蓋兩種材料的全部公差帶並留白 */
+const AXIS = {
+  male: { min: 3.9, max: 4.1, step: 0.05, delta: 0.045 },
+  female: { min: 4.15, max: 4.35, step: 0.05, delta: -0.045 }
+} as const;
+
 export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMaterial }) => {
   const [side, setSide] = useState<Side>('male');
   const { old, next, pureShift } = bands(side, material);
@@ -42,6 +49,20 @@ export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMateri
   const deepSymbol = isMale ? 'Øg' : 'ØG';
   const deepValue = isMale ? 4.375 : 3.82;
   const lengthSymbol = isMale ? 'e' : 'E';
+  const axis = AXIS[side];
+
+  const bandGroups: BandGroup[] = (['rigid', 'semi-rigid'] as MaterialType[]).map((m) => {
+    const b = bands(side, m);
+    return {
+      material: m,
+      groupLabel: m === 'rigid' ? '剛性材料 RIGID' : '半剛性材料 SEMI-RIGID',
+      oldLabel: `ISO 594-1 · ${oldSymbol}`,
+      newLabel: `ISO 80369-7 · ${newSymbol}`,
+      old: b.old,
+      next: b.next,
+      pureShift: b.pureShift
+    };
+  });
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm text-slate-900 mb-8">
@@ -102,6 +123,37 @@ export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMateri
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 公差帶尺標：同一數線上並列兩種材料的新舊公差帶 */}
+      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-6">
+        <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+          <h3 className="text-[13px] font-mono font-bold tracking-wider text-slate-700">
+            公差帶對照尺標
+          </h3>
+          <span className="text-[13px] font-mono text-slate-500">
+            {isMale ? '公接頭前端外徑' : '母錐開口內徑'}　{oldSymbol} → {newSymbol}
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <ToleranceBandChart
+            groups={bandGroups}
+            axisMin={axis.min}
+            axisMax={axis.max}
+            tickStep={axis.step}
+            delta={axis.delta}
+            activeMaterial={material}
+            caption={`${isMale ? '公' : '母'}接頭 ${oldSymbol} → ${newSymbol}`}
+          />
+        </div>
+
+        <p className="text-[13px] text-slate-600 leading-relaxed mt-3 pt-3 border-t border-slate-200">
+          ISO 594-1 於{isMale ? '公錐「端面」量測 d' : '母錐「開口端面」量測 D'}；ISO 80369-7 改於「
+          {isMale ? '距端面' : '距開口內縮'} 0.750 mm 剖面」量測 {newSymbol}。因 6 % 錐度，公差帶上下限同步平移{' '}
+          {isMale ? '+' : '−'}0.045 mm，實體幾何未變。同一組關係在 {deepSymbol}（
+          {isMale ? '距端面' : '距開口'} 7.500 mm）上亦成立：6.75 × 0.06 = 0.405 mm。
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -201,28 +253,6 @@ export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMateri
                 {DATUM_DELTA.toFixed(3)} mm
               </p>
             </div>
-          </div>
-
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h4 className="font-black text-slate-900 tracking-wider text-[13px] font-mono mb-2">
-              {material === 'rigid' ? '剛性' : '半剛性'}材料 · {isMale ? '公' : '母'}接頭公差帶
-            </h4>
-            <table className="w-full text-[13px] font-mono tabular-nums">
-              <tbody>
-                <tr className="border-b border-slate-200">
-                  <td className="py-1.5 text-slate-600">ISO 594 · {oldSymbol}（端面）</td>
-                  <td className="py-1.5 text-right font-bold text-slate-900">
-                    {old.min.toFixed(3)} – {old.max.toFixed(3)}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 text-slate-600">ISO 80369-7 · {newSymbol}（0.750）</td>
-                  <td className="py-1.5 text-right font-bold text-emerald-800">
-                    {next.min.toFixed(3)} – {next.max.toFixed(3)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </div>
 
           {!pureShift && (

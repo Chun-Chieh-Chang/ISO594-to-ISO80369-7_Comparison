@@ -1,281 +1,464 @@
-import React, { useState, useMemo } from 'react';
-import { ConnectorCategory, CalculatorInput, CalculationResult } from '../types';
-import { Calculator, CheckCircle2, XCircle, AlertTriangle, RotateCcw, Info } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import {
+  CalculationResult,
+  CalculatorInput,
+  ComplianceStatus,
+  ConnectorCategory,
+  MaterialType
+} from '../types';
+import { DIMENSIONS_DATA } from '../data/dimensionsData';
+import { Calculator, CheckCircle2, XCircle, AlertTriangle, RotateCcw, Info, MoveHorizontal, MinusCircle } from 'lucide-react';
 
-export const DimensionCalculator: React.FC = () => {
-  const [inputs, setInputs] = useState<CalculatorInput>({
-    category: 'male-slip',
-    material: 'semi-rigid',
-    tipOD_d: 3.97,
-    openID_D: 4.225,
-    throughBore_f: 2.8,
-    firstThread_t: 3.1,
-    lugLeading_N1: 1.1,
-    lugTrailing_N2: 1.9,
-    lugRoot_J: 6.2,
-    taperLength_e: 8.5,
-    measuredAt075Offset: true
+interface Props {
+  category: ConnectorCategory;
+  material: MaterialType;
+  onSelectCategory: (cat: ConnectorCategory) => void;
+  onSelectMaterial: (mat: MaterialType) => void;
+}
+
+/** 6% 錐度：每沿軸向移動 1 mm，直徑變化 0.06 mm */
+const TAPER_RATIO = 0.06;
+/** ISO 80369-7 Table B.1 / B.2 規定的量測剖面偏移量 */
+const DATUM_OFFSET = 0.75;
+/** 基準面位移造成的直徑差 = 0.75 × 0.06 */
+const DATUM_DELTA = 0.045;
+
+interface Limits {
+  min?: number;
+  max?: number;
+}
+
+const round3 = (v: number) => Math.round(v * 1000) / 1000;
+
+function statusOf(value: number, lim: Limits): ComplianceStatus {
+  if (lim.min === undefined && lim.max === undefined) return 'not-applicable';
+  if (lim.min !== undefined && value < lim.min) return 'fail';
+  if (lim.max !== undefined && value > lim.max) return 'fail';
+  return 'pass';
+}
+
+function rangeText(lim: Limits, note?: string): string {
+  const suffix = note ? ` ${note}` : '';
+  if (lim.min === undefined && lim.max === undefined) return `無對應管制${suffix}`;
+  if (lim.min === undefined) return `≤ ${lim.max!.toFixed(3)} mm${suffix}`;
+  if (lim.max === undefined) return `≥ ${lim.min.toFixed(3)} mm${suffix}`;
+  return `${lim.min.toFixed(3)} - ${lim.max.toFixed(3)} mm${suffix}`;
+}
+
+const isMaleCat = (c: ConnectorCategory) => c.startsWith('male');
+const isFemaleCat = (c: ConnectorCategory) => c.startsWith('female');
+const isMaleLockCat = (c: ConnectorCategory) => c === 'male-lock' || c === 'male-lock-rotatable';
+const isFemaleLockCat = (c: ConnectorCategory) => isFemaleCat(c) && c !== 'female-slip';
+const isRigidOnlyCat = (c: ConnectorCategory) => c === 'female-lock-b' || c === 'female-lock-c';
+
+/** 凸耳／螺紋根部直徑 ØJ 的限值，依變體而異 */
+function lugRootLimits(c: ConnectorCategory): { old: Limits; next: Limits } {
+  if (c === 'female-slip') return { old: {}, next: { min: 6.0, max: 6.73 } };
+  if (c === 'female-lock-b' || c === 'female-lock-c') return { old: { max: 5.7 }, next: { min: 5.515, max: 5.7 } };
+  return { old: { max: 6.73 }, next: { min: 5.515, max: 6.73 } };
+}
+
+/** 凸耳大徑 ØH / H 的限值，依變體而異 */
+function lugMajorLimits(c: ConnectorCategory): { old: Limits; next: Limits; label: string } {
+  if (c === 'female-lock-b') {
+    return { old: { min: 7.7, max: 7.8 }, next: { min: 7.7, max: 7.8 }, label: '凸耳大徑對角 (H，非直徑)' };
+  }
+  if (c === 'female-lock-c') {
+    return { old: { min: 7.7, max: 7.8 }, next: { min: 7.7, max: 7.8 }, label: '凸耳大徑 (ØH)' };
+  }
+  return { old: { min: 7.73, max: 7.83 }, next: { min: 7.73, max: 7.83 }, label: '凸耳／螺紋大徑 (ØH)' };
+}
+
+const DEFAULTS: CalculatorInput = {
+  category: 'male-slip',
+  material: 'semi-rigid',
+  tipOD_d: 3.97,
+  openID_D: 4.225,
+  throughBore_f: 2.8,
+  firstThread_t: 3.1,
+  lugLeading_N1: 1.1,
+  lugTrailing_N2: 1.9,
+  lugRoot_J: 6.2,
+  lugMajor_H: 7.78,
+  taperLength_e: 8.5,
+  measuredAt075Offset: true
+};
+
+export const DimensionCalculator: React.FC<Props> = ({
+  category,
+  material,
+  onSelectCategory,
+  onSelectMaterial
+}) => {
+  const [values, setValues] = useState<Omit<CalculatorInput, 'category' | 'material'>>({
+    tipOD_d: DEFAULTS.tipOD_d,
+    openID_D: DEFAULTS.openID_D,
+    throughBore_f: DEFAULTS.throughBore_f,
+    firstThread_t: DEFAULTS.firstThread_t,
+    lugLeading_N1: DEFAULTS.lugLeading_N1,
+    lugTrailing_N2: DEFAULTS.lugTrailing_N2,
+    lugRoot_J: DEFAULTS.lugRoot_J,
+    lugMajor_H: DEFAULTS.lugMajor_H,
+    taperLength_e: DEFAULTS.taperLength_e,
+    measuredAt075Offset: DEFAULTS.measuredAt075Offset
   });
 
-  const handleInputChange = (field: keyof CalculatorInput, value: any) => {
-    setInputs((prev) => ({ ...prev, [field]: value }));
+  const setValue = <K extends keyof typeof values>(field: K, value: (typeof values)[K]) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Evaluation Logic
+  const readNumber = (raw: string): number | undefined => {
+    if (raw.trim() === '') return undefined;
+    const n = parseFloat(raw);
+    return Number.isNaN(n) ? undefined : n;
+  };
+
+  /** Variant B/C 僅供剛性材料設計，強制以剛性限值評估 */
+  const effectiveMaterial: MaterialType = isRigidOnlyCat(category) ? 'rigid' : material;
+  const isRigid = effectiveMaterial === 'rigid';
+  const atOffset = values.measuredAt075Offset;
+
   const results = useMemo<CalculationResult[]>(() => {
     const list: CalculationResult[] = [];
-    const isRigid = inputs.material === 'rigid';
-    const isAtOffset = inputs.measuredAt075Offset;
 
-    // Helper for Male Slip Tip OD Ød
-    if (inputs.category === 'male-slip' || inputs.category === 'male-lock') {
-      if (inputs.tipOD_d !== undefined && !isNaN(inputs.tipOD_d)) {
-        let evalVal = inputs.tipOD_d;
-        let datumNote = false;
+    const push = (
+      paramId: string,
+      paramName: string,
+      measured: number,
+      at594: number,
+      at80369: number,
+      oldLim: Limits,
+      newLim: Limits,
+      opts: {
+        datumShift?: boolean;
+        oldNote?: string;
+        newNote?: string;
+        auxiliary?: boolean;
+        advice: (s594: ComplianceStatus, s80369: ComplianceStatus) => string;
+      }
+    ) => {
+      const s594 = statusOf(at594, oldLim);
+      let s80369 = statusOf(at80369, newLim);
+      // 輔助尺寸超差不判退，僅示警（功能性合規改由 6.4 驗證）
+      if (opts.auxiliary && s80369 === 'fail') s80369 = 'warning';
+      list.push({
+        paramId,
+        paramName,
+        measuredValue: measured,
+        measuredAtOffset: atOffset,
+        valueAt594Datum: round3(at594),
+        valueAt80369Datum: round3(at80369),
+        datumShiftApplied: !!opts.datumShift,
+        iso594Status: s594,
+        iso594Range: rangeText(oldLim, opts.oldNote),
+        iso80369Status: s80369,
+        iso80369Range: rangeText(newLim, opts.newNote),
+        advice: opts.advice(s594, s80369)
+      });
+    };
 
-        // If user measured at 0.00mm face, convert to 0.75mm plane for ISO 80369-7 check
-        if (!isAtOffset) {
-          evalVal = inputs.tipOD_d + 0.045; // 0.75 * 0.06
-          datumNote = true;
+    // ── 公錐前端外徑 Ød（基準面位移項）
+    if (isMaleCat(category) && values.tipOD_d !== undefined) {
+      const m = values.tipOD_d;
+      // 公錐：0.75 mm 剖面的直徑比端面大 0.045 mm
+      const atTip = atOffset ? m - DATUM_DELTA : m;
+      const atPlane = atOffset ? m : m + DATUM_DELTA;
+      push(
+        'tipOD',
+        '公錐體前端外徑 (Ød)',
+        m,
+        atTip,
+        atPlane,
+        { min: 3.925, max: isRigid ? 3.99 : 4.027 },
+        { min: 3.97, max: isRigid ? 4.035 : 4.072 },
+        {
+          datumShift: true,
+          oldNote: '@ 端面',
+          newNote: '@ 0.750 mm 剖面',
+          advice: (s594, s80369) => {
+            if (s80369 === 'fail' && s594 === 'pass')
+              return '換算後不符 ISO 80369-7，但符合舊版 —— 屬轉版新增之判退風險，請檢查模具公錐外徑縮模量。';
+            if (s80369 === 'fail') return '兩版皆不符，錐體外徑本身超出規格，須修模。';
+            if (s594 === 'fail') return '符合 ISO 80369-7，但依舊版基準換算後超出 ISO 594 —— 舊圖面若仍在流通須留意。';
+            return '兩版基準換算後皆符合。';
+          }
         }
-
-        const iso594Min = 3.925;
-        const iso594Max = isRigid ? 3.99 : 4.027;
-
-        const iso80369Min = 3.97;
-        const iso80369Max = isRigid ? 4.035 : 4.072;
-
-        const pass594 = inputs.tipOD_d >= iso594Min && inputs.tipOD_d <= iso594Max;
-        const pass80369 = evalVal >= iso80369Min && evalVal <= iso80369Max;
-
-        list.push({
-          paramId: 'tipOD',
-          paramName: '公錐體前端外徑 (Ød)',
-          measuredValue: inputs.tipOD_d,
-          measuredAtOffset: isAtOffset,
-          iso594Status: pass594 ? 'pass' : 'fail',
-          iso594Range: `${iso594Min} - ${iso594Max} mm (極端面)`,
-          iso80369Status: pass80369 ? 'pass' : 'fail',
-          iso80369Range: `${iso80369Min} - ${iso80369Max} mm (0.75mm剖面)`,
-          datumShiftApplied: datumNote,
-          advice: !pass80369
-            ? '測量數值超出 ISO 80369-7 規範！請檢查模具公錐外徑縮模量。'
-            : datumNote
-            ? '已由端面實測值換算為 0.75mm 剖面估算值 (+0.045mm)。'
-            : '符合 ISO 80369-7 剖面外徑規範。'
-        });
-      }
-
-      if (inputs.throughBore_f !== undefined && !isNaN(inputs.throughBore_f)) {
-        const pass594 = true; // ISO 594 had no upper limit
-        const pass80369 = inputs.throughBore_f <= 2.9;
-
-        list.push({
-          paramId: 'bore_f',
-          paramName: '前端內孔直徑 (Øf)',
-          measuredValue: inputs.throughBore_f,
-          measuredAtOffset: true,
-          iso594Status: 'pass',
-          iso594Range: '無上限限制',
-          iso80369Status: pass80369 ? 'pass' : 'fail',
-          iso80369Range: '≤ 2.900 mm (最大上限)',
-          datumShiftApplied: false,
-          advice: !pass80369
-            ? '🔴 嚴重違規！內孔 Øf 大於 2.900 mm，無法通過防錯接 (Misconnection) 驗證！'
-            : '符合 ISO 80369-7 防錯接內孔上限要求。'
-        });
-      }
+      );
     }
 
-    // Helper for Female Opening ID ØD
-    if (inputs.category === 'female-slip' || inputs.category === 'female-lock') {
-      if (inputs.openID_D !== undefined && !isNaN(inputs.openID_D)) {
-        let evalVal = inputs.openID_D;
-        let datumNote = false;
+    // ── 公錐前端內孔 Øf（防錯接）
+    if (isMaleCat(category) && values.throughBore_f !== undefined) {
+      const m = values.throughBore_f;
+      push('bore_f', '前端內孔直徑 (Øf)', m, m, m, {}, { max: 2.9 }, {
+        newNote: '(未定義下限)',
+        advice: (_s594, s80369) =>
+          s80369 === 'fail'
+            ? '嚴重違規：內孔大於 2.900 mm，無法通過防錯接驗證，且可能與 ISO 80369-6 神經軸接頭誤接。'
+            : '符合防錯接內孔上限。ISO 80369-7 刻意不定義下限，以容納玻璃針筒的極小內孔。'
+      });
+    }
 
-        if (!isAtOffset) {
-          evalVal = inputs.openID_D - 0.045; // 0.75 * 0.06 inside
-          datumNote = true;
+    // ── 母錐開口內徑 ØD（基準面位移項）
+    if (isFemaleCat(category) && values.openID_D !== undefined) {
+      const m = values.openID_D;
+      // 母錐：0.75 mm 剖面的直徑比端面小 0.045 mm
+      const atFace = atOffset ? m + DATUM_DELTA : m;
+      const atPlane = atOffset ? m : m - DATUM_DELTA;
+      push(
+        'openID',
+        '母錐開口內徑 (ØD)',
+        m,
+        atFace,
+        atPlane,
+        { min: 4.27, max: 4.315 },
+        { min: isRigid ? 4.225 : 4.198, max: isRigid ? 4.27 : 4.298 },
+        {
+          datumShift: true,
+          oldNote: '@ 端面',
+          newNote: '@ 內縮 0.750 mm 剖面',
+          advice: (s594, s80369) => {
+            if (s80369 === 'fail') return '換算後不符 ISO 80369-7 開口內徑規範，請檢查母模芯尺寸與成型收縮。';
+            if (!isRigid && atPlane < 4.225)
+              return '符合半剛性公差帶，但低於 Table B.2 註 b 建議的 4.225 mm —— 與部分公鎖固接頭可能咬合不足，建議提高。';
+            if (s594 === 'fail')
+              return '符合 ISO 80369-7，但依舊版基準換算後超出 ISO 594 —— 屬新版放寬所致（半剛性公差帶較寬）。';
+            return '兩版基準換算後皆符合。';
+          }
         }
-
-        const iso594Min = 4.27;
-        const iso594Max = 4.315;
-
-        const iso80369Min = isRigid ? 4.225 : 4.198;
-        const iso80369Max = isRigid ? 4.27 : 4.298;
-
-        const pass594 = inputs.openID_D >= iso594Min && inputs.openID_D <= iso594Max;
-        const pass80369 = evalVal >= iso80369Min && evalVal <= iso80369Max;
-
-        list.push({
-          paramId: 'openID',
-          paramName: '母錐開口內徑 (ØD)',
-          measuredValue: inputs.openID_D,
-          measuredAtOffset: isAtOffset,
-          iso594Status: pass594 ? 'pass' : 'fail',
-          iso594Range: `${iso594Min} - ${iso594Max} mm (極端面)`,
-          iso80369Status: pass80369 ? 'pass' : 'fail',
-          iso80369Range: `${iso80369Min} - ${iso80369Max} mm (0.75mm內縮剖面)`,
-          datumShiftApplied: datumNote,
-          advice: !pass80369
-            ? '開口內徑不符合 ISO 80369-7。半剛性材料建議最小保持在 4.225mm 以上以防滲漏。'
-            : '符合母接頭開口內徑規範。'
-        });
-      }
+      );
     }
 
-    // Male Lock First Thread Start t
-    if (inputs.category === 'male-lock') {
-      if (inputs.firstThread_t !== undefined && !isNaN(inputs.firstThread_t)) {
-        const pass594 = inputs.firstThread_t <= 3.2;
-        const max80369 = isRigid ? 3.2 : 3.65;
-        const pass80369 = inputs.firstThread_t <= max80369;
-
-        list.push({
-          paramId: 'firstThread_t',
-          paramName: '至第一圈螺紋起點距離 (t)',
-          measuredValue: inputs.firstThread_t,
-          measuredAtOffset: true,
-          iso594Status: pass594 ? 'pass' : 'fail',
-          iso594Range: '≤ 3.200 mm (強制極限)',
-          iso80369Status: pass80369 ? 'pass' : 'warning',
-          iso80369Range: `(${max80369.toFixed(3)}) mm max (輔助參考值)`,
-          datumShiftApplied: false,
-          advice:
-            inputs.firstThread_t > 3.2 && inputs.firstThread_t <= 3.65
-              ? '⚠️ 舊版判退，但 ISO 80369-7 半剛性放寬至 3.65mm 輔助尺寸，改由軸向拉拔測試 (32-35N) 驗證。'
-              : pass80369
-              ? '符合第一圈螺紋起點輔助參考值。'
-              : '距離過長，可能影響旋緊咬合圈數。'
-        });
-      }
+    // ── 錐體長度 e / 母錐深度 E
+    if (values.taperLength_e !== undefined) {
+      const m = values.taperLength_e;
+      const name = isMaleCat(category) ? '公錐體有效長度 (e)' : '母錐體有效深度 (E)';
+      push('taperLength', name, m, m, m, { min: 7.5 }, { min: 7.5, max: 10.5 }, {
+        oldNote: '(無上限)',
+        advice: (_s594, s80369) =>
+          s80369 === 'fail'
+            ? m > 10.5
+              ? '超過新增的 10.500 mm 上限 —— 舊版不判退，屬轉版新增之判退風險。'
+              : '低於 7.500 mm 最小值，兩版皆判退。'
+            : '符合。此尺寸同時定義接頭的延伸範圍 (extent of the connector)。'
+      });
     }
 
-    // Female Lock Lug N1 & N2
-    if (inputs.category === 'female-lock') {
-      if (inputs.lugLeading_N1 !== undefined && !isNaN(inputs.lugLeading_N1)) {
-        const pass80369 = inputs.lugLeading_N1 <= 1.2;
-        list.push({
-          paramId: 'lugN1',
-          paramName: '凸耳前緣定位距離 (N1)',
-          measuredValue: inputs.lugLeading_N1,
-          measuredAtOffset: true,
-          iso594Status: 'not-applicable',
-          iso594Range: '舊版無 N1 規格 (舊為 F=0.2mm)',
-          iso80369Status: pass80369 ? 'pass' : 'fail',
-          iso80369Range: '≤ 1.200 mm (最大上限)',
-          datumShiftApplied: false,
-          advice: !pass80369
-            ? '🔴 凸耳前端 N1 超過 1.200mm，旋緊時可能導致螺紋預緊卡死！'
-            : '符合凸耳前端螺旋進程規範。'
-        });
-      }
+    // ── 公鎖固：至第一圈完整螺紋距離 t（輔助尺寸）
+    if (isMaleLockCat(category) && values.firstThread_t !== undefined) {
+      const m = values.firstThread_t;
+      const newMax = isRigid ? 3.2 : 3.65;
+      push('firstThread_t', '至第一圈螺紋起點距離 (t)', m, m, m, { max: 3.2 }, { max: newMax }, {
+        auxiliary: true,
+        oldNote: '(強制管制)',
+        newNote: '(輔助尺寸)',
+        advice: (s594, s80369) => {
+          if (s594 === 'fail' && s80369 !== 'fail' && s80369 !== 'warning')
+            return '舊版判退，但半剛性材料在新版放寬至 3.650 mm 且已降為輔助尺寸；功能性合規改由 6.4 抗軸向分離 (32-35 N) 驗證。';
+          if (s80369 === 'warning')
+            return '超出輔助尺寸建議上限。輔助尺寸不直接判退，但必須通過 6.4 抗軸向分離測試，且 Table B.3 註 c 建議半剛性仍維持 3.200 mm。';
+          if (!isRigid && m > 3.2)
+            return '符合半剛性輔助上限，但註 c 建議維持 3.200 mm 以確保與所有母鎖固接頭咬合。';
+          return '符合第一圈螺紋起點輔助參考值。';
+        }
+      });
+    }
 
-      if (inputs.lugTrailing_N2 !== undefined && !isNaN(inputs.lugTrailing_N2)) {
-        const pass80369 = inputs.lugTrailing_N2 <= 2.07;
-        list.push({
-          paramId: 'lugN2',
-          paramName: '凸耳後緣定位距離 (N2)',
-          measuredValue: inputs.lugTrailing_N2,
-          measuredAtOffset: true,
-          iso594Status: 'not-applicable',
-          iso594Range: '舊版無 N2 規格',
-          iso80369Status: pass80369 ? 'pass' : 'fail',
-          iso80369Range: '≤ 2.070 mm (最大上限)',
-          datumShiftApplied: false,
-          advice: !pass80369 ? '🔴 凸耳後緣 N2 超過 2.070mm 上限！' : '符合凸耳後緣螺旋進程規範。'
-        });
-      }
+    // ── 母鎖固：凸耳大徑 ØH / H
+    if (isFemaleLockCat(category) && values.lugMajor_H !== undefined) {
+      const m = values.lugMajor_H;
+      const { old, next, label } = lugMajorLimits(category);
+      push('lugMajor_H', label, m, m, m, old, next, {
+        advice: (_s594, s80369) =>
+          s80369 === 'fail'
+            ? '凸耳大徑超出範圍，將影響與公接頭套環的咬合與防錯接判定。'
+            : category === 'female-lock-b'
+            ? '符合。注意 Variant B 量測的是「對角」(H，無 Ø)，Variant A/C 量測的是圓柱直徑 (ØH)。'
+            : '符合凸耳大徑管制。'
+      });
+    }
 
-      if (inputs.lugRoot_J !== undefined && !isNaN(inputs.lugRoot_J)) {
-        const pass80369 = inputs.lugRoot_J >= 5.515 && inputs.lugRoot_J <= 6.73;
-        list.push({
-          paramId: 'lugRoot_J',
-          paramName: '凸耳根部直徑 (ØJ)',
-          measuredValue: inputs.lugRoot_J,
-          measuredAtOffset: true,
-          iso594Status: 'not-applicable',
-          iso594Range: '舊版採弦長 V≥3.5mm 間接管制',
-          iso80369Status: pass80369 ? 'pass' : 'fail',
-          iso80369Range: '5.515 - 6.730 mm',
-          datumShiftApplied: false,
-          advice: !pass80369 ? '凸耳根部直徑超出 5.515-6.730mm 範圍！' : '符合 ISO 80369-7 凸耳根部直徑管制。'
-        });
-      }
+    // ── 母接頭：包絡／凸耳根部直徑 ØJ
+    if (isFemaleCat(category) && values.lugRoot_J !== undefined) {
+      const m = values.lugRoot_J;
+      const { old, next } = lugRootLimits(category);
+      const name = category === 'female-slip' ? '本體包絡外徑 (ØJ)' : '凸耳／螺紋根部直徑 (ØJ)';
+      push('lugRoot_J', name, m, m, m, old, next, {
+        oldNote: category === 'female-slip' ? '' : '(僅上限)',
+        advice: (s594, s80369) => {
+          if (s80369 === 'fail' && next.min !== undefined && m < next.min)
+            return `低於新增的下限 ${next.min.toFixed(3)} mm —— 舊版無下限故不判退，屬轉版新增之判退風險。`;
+          if (s80369 === 'fail') return '超出上限，且自端面起 5.5 mm 內皆不得超過此值。';
+          if (s594 === 'not-applicable') return '符合。母滑套的 ØJ 為全新包絡直徑管制，同時是防錯接關鍵特徵。';
+          return '符合。上限與「自端面 5.5 mm 內不得放大」之條件沿用舊版 G，新版僅補上下限。';
+        }
+      });
+    }
+
+    // ── 母鎖固 Variant A：N1 / N2
+    if (category === 'female-lock' && values.lugLeading_N1 !== undefined) {
+      const m = values.lugLeading_N1;
+      push('lugN1', '凸耳前緣定位距離 (N1)', m, m, m, {}, { max: 1.2 }, {
+        oldNote: '(Variant A 無此尺寸)',
+        advice: (_s594, s80369) =>
+          s80369 === 'fail'
+            ? '凸耳前緣 N1 超過 1.200 mm，旋緊時可能導致螺紋預緊卡死。'
+            : '符合。自端面往內量測，於對應 6.730 之直徑處。舊版 Variant A 無此尺寸，舊圖面未標註屬重大缺失。'
+      });
+    }
+    if (category === 'female-lock' && values.lugTrailing_N2 !== undefined) {
+      const m = values.lugTrailing_N2;
+      push('lugN2', '凸耳後緣定位距離 (N2)', m, m, m, {}, { max: 2.07 }, {
+        oldNote: '(Variant A 無此尺寸)',
+        advice: (_s594, s80369) =>
+          s80369 === 'fail'
+            ? '凸耳後緣 N2 超過 2.070 mm 上限，螺紋咬合圈數不足。'
+            : '符合凸耳後緣定位規範。'
+      });
     }
 
     return list;
-  }, [inputs]);
+  }, [category, effectiveMaterial, values, atOffset, isRigid]);
+
+  const activeCategory = DIMENSIONS_DATA.find((c) => c.id === category);
 
   const resetDefaults = () => {
-    setInputs({
-      category: 'male-slip',
-      material: 'semi-rigid',
-      tipOD_d: 3.97,
-      openID_D: 4.225,
-      throughBore_f: 2.8,
-      firstThread_t: 3.1,
-      lugLeading_N1: 1.1,
-      lugTrailing_N2: 1.9,
-      lugRoot_J: 6.2,
-      taperLength_e: 8.5,
-      measuredAt075Offset: true
+    setValues({
+      tipOD_d: DEFAULTS.tipOD_d,
+      openID_D: DEFAULTS.openID_D,
+      throughBore_f: DEFAULTS.throughBore_f,
+      firstThread_t: DEFAULTS.firstThread_t,
+      lugLeading_N1: DEFAULTS.lugLeading_N1,
+      lugTrailing_N2: DEFAULTS.lugTrailing_N2,
+      lugRoot_J: DEFAULTS.lugRoot_J,
+      lugMajor_H: DEFAULTS.lugMajor_H,
+      taperLength_e: DEFAULTS.taperLength_e,
+      measuredAt075Offset: DEFAULTS.measuredAt075Offset
     });
+  };
+
+  const numberField = (
+    field: keyof typeof values,
+    label: string,
+    hint: string,
+    hintTone: 'muted' | 'alert' = 'muted'
+  ) => {
+    const raw = values[field];
+    return (
+      <div key={field}>
+        <div className="flex justify-between text-[13px] mb-1 gap-2">
+          <label htmlFor={`calc-${field}`} className="text-slate-800 font-bold">
+            {label}
+          </label>
+          <span
+            className={`font-mono text-[13px] ${
+              hintTone === 'alert' ? 'text-rose-700 font-black' : 'text-slate-500'
+            }`}
+          >
+            {hint}
+          </span>
+        </div>
+        <input
+          id={`calc-${field}`}
+          type="number"
+          step="0.001"
+          inputMode="decimal"
+          value={typeof raw === 'number' ? raw : ''}
+          onChange={(e) => setValue(field, readNumber(e.target.value) as never)}
+          className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+        />
+      </div>
+    );
+  };
+
+  const statusPill = (status: ComplianceStatus, label: string) => {
+    const map: Record<ComplianceStatus, string> = {
+      pass: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+      fail: 'bg-rose-100 text-rose-900 border-rose-300',
+      warning: 'bg-amber-100 text-amber-900 border-amber-300',
+      'not-applicable': 'bg-slate-100 text-slate-600 border-slate-300'
+    };
+    const icon =
+      status === 'pass' ? (
+        <CheckCircle2 className="w-3.5 h-3.5" />
+      ) : status === 'warning' ? (
+        <AlertTriangle className="w-3.5 h-3.5" />
+      ) : status === 'fail' ? (
+        <XCircle className="w-3.5 h-3.5" />
+      ) : (
+        <MinusCircle className="w-3.5 h-3.5" />
+      );
+    const text =
+      status === 'not-applicable' ? 'N/A' : status === 'warning' ? 'WARN' : status.toUpperCase();
+    return (
+      <span
+        className={`text-[13px] px-2.5 py-1 rounded-md font-mono font-black tracking-wider border inline-flex items-center gap-1 ${map[status]}`}
+      >
+        {icon}
+        {label}: {text}
+      </span>
+    );
   };
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 mb-6">
         <div>
-          <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
+          <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2">
             <Calculator className="w-5 h-5 text-emerald-600" />
-            實測 / CAD 尺寸合規線上評估計算器 (Inspection Calculator)
+            實測 / CAD 尺寸合規評估計算器
           </h2>
           <p className="text-slate-600 text-[13px] mt-1">
-            輸入您的 CAD 實體數據或二次元量測值，自動帶入基準位移與雙標準合規比對。
+            輸入量測值後，系統會將其換算至<strong className="text-slate-900">兩個標準各自的基準面</strong>，再分別判定 —— 換算是雙向可逆的，切換量測剖面不會改變結論。
           </p>
         </div>
         <button
           onClick={resetDefaults}
-          className="text-[13px] font-mono font-bold uppercase bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+          className="text-[13px] font-mono font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 self-start sm:self-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
         >
           <RotateCcw className="w-3.5 h-3.5 text-slate-500" /> 重置預設數值
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Input Parameters Panel */}
+        {/* 輸入面板 */}
         <div className="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-          <h3 className="text-[13px] font-black uppercase tracking-wider text-amber-900 font-mono flex items-center gap-1.5 pb-2 border-b border-slate-200">
+          <h3 className="text-[13px] font-black tracking-wider text-amber-900 font-mono flex items-center gap-1.5 pb-2 border-b border-slate-200">
             <Info className="w-4 h-4 text-amber-600" />
-            1. 設定接頭條件與測量基準
+            1. 設定接頭條件與量測基準
           </h3>
 
-          {/* Category Picker */}
           <div>
-            <label className="text-[13px] text-slate-800 font-bold uppercase block mb-1">接頭類型 (Connector Category)</label>
+            <label htmlFor="calc-category" className="text-[13px] text-slate-800 font-bold block mb-1">
+              接頭類型（與尺寸比對表連動）
+            </label>
             <select
-              value={inputs.category}
-              onChange={(e) => handleInputChange('category', e.target.value as ConnectorCategory)}
-              className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] font-mono font-bold rounded-lg p-2.5 focus:border-blue-500 focus:outline-none"
+              id="calc-category"
+              value={category}
+              onChange={(e) => onSelectCategory(e.target.value as ConnectorCategory)}
+              className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] font-mono font-bold rounded-lg p-2.5 focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
-              <option value="male-slip">公滑套 (Male Luer Slip)</option>
-              <option value="female-slip">母滑套 (Female Luer Slip)</option>
-              <option value="male-lock">公鎖固 (Male Luer Lock)</option>
-              <option value="female-lock">母鎖固 (Female Luer Lock Variant A)</option>
+              {DIMENSIONS_DATA.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.tabLabel}
+                </option>
+              ))}
             </select>
+            {activeCategory && (
+              <p className="text-[13px] text-slate-500 font-mono mt-1">{activeCategory.standardRef}</p>
+            )}
           </div>
 
-          {/* Material Picker */}
           <div>
-            <label className="text-[13px] text-slate-800 font-bold uppercase block mb-1">材料剛性類別 (Material Rigidity)</label>
+            <span className="text-[13px] text-slate-800 font-bold block mb-1">材料剛性類別</span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => handleInputChange('material', 'semi-rigid')}
-                className={`py-2 px-3 rounded-lg text-[13px] font-black uppercase tracking-wider border text-center transition-all ${
-                  inputs.material === 'semi-rigid'
-                    ? 'bg-purple-100 text-purple-900 border-purple-500 shadow-2xs'
+                onClick={() => onSelectMaterial('semi-rigid')}
+                disabled={isRigidOnlyCat(category)}
+                aria-pressed={effectiveMaterial === 'semi-rigid'}
+                className={`py-2 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                  effectiveMaterial === 'semi-rigid'
+                    ? 'bg-purple-100 text-purple-900 border-purple-500'
                     : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
                 }`}
               >
@@ -283,219 +466,171 @@ export const DimensionCalculator: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => handleInputChange('material', 'rigid')}
-                className={`py-2 px-3 rounded-lg text-[13px] font-black uppercase tracking-wider border text-center transition-all ${
-                  inputs.material === 'rigid'
-                    ? 'bg-blue-100 text-blue-900 border-blue-500 shadow-2xs'
+                onClick={() => onSelectMaterial('rigid')}
+                aria-pressed={effectiveMaterial === 'rigid'}
+                className={`py-2 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                  effectiveMaterial === 'rigid'
+                    ? 'bg-blue-100 text-blue-900 border-blue-500'
                     : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
                 }`}
               >
                 剛性 (金屬/玻璃)
               </button>
             </div>
+            {isRigidOnlyCat(category) && (
+              <p className="text-[13px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 mt-2">
+                本變體依標準僅供剛性材料設計使用，已鎖定為剛性限值。
+              </p>
+            )}
           </div>
 
-          {/* Measurement Plane Toggle */}
-          <div className="bg-white p-3 rounded-lg border border-slate-200">
-            <label className="text-[13px] text-slate-800 font-bold uppercase block mb-1.5">
-              量測剖面點 (Measurement Plane)
-            </label>
+          <fieldset className="bg-white p-3 rounded-lg border border-slate-200">
+            <legend className="text-[13px] text-slate-800 font-bold px-1">量測剖面 (Measurement Plane)</legend>
             <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
                 <input
                   type="radio"
                   name="datumMode"
-                  checked={inputs.measuredAt075Offset}
-                  onChange={() => handleInputChange('measuredAt075Offset', true)}
-                  className="text-blue-600 focus:ring-0"
+                  checked={atOffset}
+                  onChange={() => setValue('measuredAt075Offset', true)}
+                  className="text-blue-600"
                 />
-                <span>ISO 80369-7 規範剖面：距端面 <strong className="text-slate-900">0.75 mm</strong> 處</span>
+                <span>
+                  ISO 80369-7 剖面：距端面 <strong className="text-slate-900 font-mono">0.750 mm</strong> 處
+                </span>
               </label>
               <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
                 <input
                   type="radio"
                   name="datumMode"
-                  checked={!inputs.measuredAt075Offset}
-                  onChange={() => handleInputChange('measuredAt075Offset', false)}
-                  className="text-blue-600 focus:ring-0"
+                  checked={!atOffset}
+                  onChange={() => setValue('measuredAt075Offset', false)}
+                  className="text-blue-600"
                 />
-                <span>舊版 ISO 594 剖面：最極端面 <strong className="text-slate-900">0.00 mm</strong> 處</span>
+                <span>
+                  ISO 594 剖面：<strong className="text-slate-900 font-mono">端面 (0.000 mm)</strong>
+                </span>
               </label>
             </div>
-          </div>
+            <p className="text-[13px] text-slate-500 mt-2 pt-2 border-t border-slate-100 leading-relaxed">
+              此設定僅影響 Ød 與 ØD（唯二具基準差異的項目）。系統會同時換算出另一基準的等效值，兩個判定皆據各自基準計算。
+            </p>
+          </fieldset>
 
-          {/* Dynamic Numeric Inputs */}
           <div className="pt-2 border-t border-slate-200 space-y-3">
-            <h4 className="text-[13px] font-black uppercase tracking-wider text-slate-800 font-mono">2. 輸入測量數值 (Dimensions in mm)</h4>
+            <h4 className="text-[13px] font-black tracking-wider text-slate-800 font-mono">
+              2. 輸入量測數值 (mm)
+            </h4>
 
-            {(inputs.category === 'male-slip' || inputs.category === 'male-lock') && (
+            {isMaleCat(category) && (
               <>
-                <div>
-                  <div className="flex justify-between text-[13px] mb-1">
-                    <span className="text-slate-800 font-bold">公錐外徑 Ød (Tip OD)</span>
-                    <span className="text-slate-500 font-mono text-[13px]">ISO 80369: 3.970-4.035</span>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.001"
-                    value={inputs.tipOD_d || ''}
-                    onChange={(e) => handleInputChange('tipOD_d', parseFloat(e.target.value))}
-                    className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-[13px] mb-1">
-                    <span className="text-slate-800 font-bold">前端內孔 Øf (Through Bore)</span>
-                    <span className="text-rose-700 font-mono text-[13px] font-black">上限 ≤ 2.900 mm</span>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.001"
-                    value={inputs.throughBore_f || ''}
-                    onChange={(e) => handleInputChange('throughBore_f', parseFloat(e.target.value))}
-                    className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
+                {numberField('tipOD_d', '公錐外徑 Ød', isRigid ? '3.970 - 4.035' : '3.970 - 4.072')}
+                {numberField('throughBore_f', '前端內孔 Øf', '上限 ≤ 2.900', 'alert')}
               </>
             )}
 
-            {(inputs.category === 'female-slip' || inputs.category === 'female-lock') && (
-              <div>
-                <div className="flex justify-between text-[13px] mb-1">
-                  <span className="text-slate-800 font-bold">母錐開口內徑 ØD (Opening ID)</span>
-                  <span className="text-slate-500 font-mono text-[13px]">ISO 80369: 4.225-4.270</span>
-                </div>
-                <input
-                  type="number"
-                  step="0.001"
-                  value={inputs.openID_D || ''}
-                  onChange={(e) => handleInputChange('openID_D', parseFloat(e.target.value))}
-                  className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none"
-                />
-              </div>
+            {isFemaleCat(category) &&
+              numberField('openID_D', '母錐開口內徑 ØD', isRigid ? '4.225 - 4.270' : '4.198 - 4.298')}
+
+            {numberField(
+              'taperLength_e',
+              isMaleCat(category) ? '公錐長度 e' : '母錐深度 E',
+              '7.500 - 10.500'
             )}
 
-            {inputs.category === 'male-lock' && (
-              <div>
-                <div className="flex justify-between text-[13px] mb-1">
-                  <span className="text-slate-800 font-bold">至第一圈螺紋距離 t (1st Thread)</span>
-                  <span className="text-slate-500 font-mono text-[13px]">輔助: (3.200) / (3.650)</span>
-                </div>
-                <input
-                  type="number"
-                  step="0.001"
-                  value={inputs.firstThread_t || ''}
-                  onChange={(e) => handleInputChange('firstThread_t', parseFloat(e.target.value))}
-                  className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none"
-                />
+            {isMaleLockCat(category) &&
+              numberField('firstThread_t', '至第一圈螺紋 t', isRigid ? '輔助 (3.200)' : '輔助 (3.650)')}
+
+            {isFemaleLockCat(category) &&
+              numberField(
+                'lugMajor_H',
+                lugMajorLimits(category).label,
+                rangeText(lugMajorLimits(category).next).replace(' mm', '')
+              )}
+
+            {isFemaleCat(category) &&
+              numberField(
+                'lugRoot_J',
+                category === 'female-slip' ? '本體包絡外徑 ØJ' : '凸耳根部直徑 ØJ',
+                rangeText(lugRootLimits(category).next).replace(' mm', '')
+              )}
+
+            {category === 'female-lock' && (
+              <div className="grid grid-cols-2 gap-2">
+                {numberField('lugLeading_N1', '凸耳前緣 N1', '≤ 1.200')}
+                {numberField('lugTrailing_N2', '凸耳後緣 N2', '≤ 2.070')}
               </div>
-            )}
-
-            {inputs.category === 'female-lock' && (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[13px] text-slate-800 font-bold block mb-1">凸耳前緣 N1 (≤1.200)</label>
-                    <input
-                      type="number"
-                      step="0.001"
-                      value={inputs.lugLeading_N1 || ''}
-                      onChange={(e) => handleInputChange('lugLeading_N1', parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[13px] text-slate-800 font-bold block mb-1">凸耳後緣 N2 (≤2.070)</label>
-                    <input
-                      type="number"
-                      step="0.001"
-                      value={inputs.lugTrailing_N2 || ''}
-                      onChange={(e) => handleInputChange('lugTrailing_N2', parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-[13px] mb-1">
-                    <span className="text-slate-800 font-bold">凸耳根部直徑 ØJ (Root OD)</span>
-                    <span className="text-slate-500 font-mono text-[13px]">5.515 - 6.730 mm</span>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.001"
-                    value={inputs.lugRoot_J || ''}
-                    onChange={(e) => handleInputChange('lugRoot_J', parseFloat(e.target.value))}
-                    className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </>
             )}
           </div>
         </div>
 
-        {/* Results Panel */}
+        {/* 結果面板 */}
         <div className="lg:col-span-7 space-y-4">
-          <h3 className="text-[13px] font-black uppercase tracking-wider text-emerald-800 font-mono flex items-center gap-1.5 pb-2 border-b border-slate-200">
+          <h3 className="text-[13px] font-black tracking-wider text-emerald-800 font-mono flex items-center gap-1.5 pb-2 border-b border-slate-200">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            3. 合規審查判定報告 (Compliance Evaluation Output)
+            3. 雙標準合規判定
           </h3>
 
           <div className="space-y-3">
             {results.length === 0 ? (
               <div className="text-center py-12 text-slate-500 text-[13px] bg-slate-50 font-mono rounded-xl border border-slate-200">
-                請在左側輸入實測數據以檢視審查結果。
+                請在左側輸入量測數據以檢視審查結果。
               </div>
             ) : (
               results.map((res) => (
-                <div
-                  key={res.paramId}
-                  className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                <div key={res.paramId} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 border-b border-slate-200 pb-2">
                     <div>
                       <span className="font-black text-slate-900 text-sm">{res.paramName}</span>
                       <span className="text-[13px] text-slate-700 font-mono ml-2">
-                        實測值: <strong className="text-amber-800 font-black">{res.measuredValue} mm</strong>
+                        實測 <strong className="text-amber-800 font-black">{res.measuredValue} mm</strong>
                       </span>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-[13px] px-2.5 py-1 rounded-md font-mono font-black uppercase tracking-wider border flex items-center gap-1 ${
-                          res.iso80369Status === 'pass'
-                            ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                            : res.iso80369Status === 'warning'
-                            ? 'bg-amber-100 text-amber-900 border-amber-300'
-                            : 'bg-rose-100 text-rose-900 border-rose-300'
-                        }`}
-                      >
-                        {res.iso80369Status === 'pass' ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                        ) : res.iso80369Status === 'warning' ? (
-                          <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
-                        ) : (
-                          <XCircle className="w-3.5 h-3.5 text-rose-700" />
-                        )}
-                        ISO 80369-7: {res.iso80369Status.toUpperCase()}
-                      </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {statusPill(res.iso594Status, 'ISO 594')}
+                      {statusPill(res.iso80369Status, 'ISO 80369-7')}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-[13px] font-mono">
+                  {res.datumShiftApplied && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-[13px] font-mono text-amber-900 flex items-center gap-2 flex-wrap">
+                      <MoveHorizontal className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                      <span>
+                        端面基準 <strong>{res.valueAt594Datum.toFixed(3)}</strong>
+                      </span>
+                      <span className="text-amber-600">↔</span>
+                      <span>
+                        0.750 mm 剖面 <strong>{res.valueAt80369Datum.toFixed(3)}</strong>
+                      </span>
+                      <span className="text-amber-700">
+                        （Δ = {DATUM_OFFSET.toFixed(3)} × {TAPER_RATIO} = {DATUM_DELTA.toFixed(3)} mm）
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px] font-mono">
                     <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-slate-500 block text-[13px] uppercase font-bold">舊版 ISO 594 許容範圍:</span>
+                      <span className="text-slate-500 block text-[13px] font-bold">ISO 594 許容範圍</span>
                       <span className="text-slate-800 font-bold">{res.iso594Range}</span>
+                      {res.datumShiftApplied && (
+                        <span className="block text-slate-500 mt-0.5">
+                          比對值 {res.valueAt594Datum.toFixed(3)} mm
+                        </span>
+                      )}
                     </div>
                     <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-slate-500 block text-[13px] uppercase font-bold">新版 ISO 80369-7 許容範圍:</span>
+                      <span className="text-slate-500 block text-[13px] font-bold">ISO 80369-7 許容範圍</span>
                       <span className="text-emerald-800 font-bold">{res.iso80369Range}</span>
+                      {res.datumShiftApplied && (
+                        <span className="block text-slate-500 mt-0.5">
+                          比對值 {res.valueAt80369Datum.toFixed(3)} mm
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  <div className="bg-white p-3 rounded-lg border border-slate-200 text-[13px] text-slate-800 font-sans leading-relaxed">
-                    <strong className="text-amber-800 font-mono font-black uppercase">處置建議: </strong> {res.advice}
+                  <div className="bg-white p-3 rounded-lg border border-slate-200 text-[13px] text-slate-800 leading-relaxed">
+                    <strong className="text-amber-800 font-mono font-black">處置建議：</strong> {res.advice}
                   </div>
                 </div>
               ))

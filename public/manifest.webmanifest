@@ -5,45 +5,35 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#0F172A",
   "theme_color": "#0F172A",
   "categories": ["medical", "productivity", "utilities"],
   "icons": [
     {
       "src": "icons/icon.svg",
-      "sizes": "192x192 512x512",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
-    },
-    {
-      "src": "icons/icon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
     }
   ],
   "shortcuts": [
     {
       "name": "CAD 評估計算器",
       "short_name": "計算器",
-      "description": "計算 0.75mm 基準位移後之公母接頭外徑與公差",
-      "url": "./?tab=calculator",
-      "icons": [{ "src": "icons/icon.svg", "sizes": "192x192" }]
+      "description": "雙標準基準換算與公差判定",
+      "url": "./?tab=calculator"
     },
     {
       "name": "尺寸比對表",
       "short_name": "尺寸表",
-      "description": "查看 ISO 594 與 ISO 80369-7 逐一尺寸對照",
-      "url": "./?tab=tables",
-      "icons": [{ "src": "icons/icon.svg", "sizes": "192x192" }]
+      "description": "Annex B Table B.1 至 B.8 共 60 項尺寸對照",
+      "url": "./?tab=tables"
     },
     {
-      "name": "R&D 審查清單",
-      "short_name": "行動清單",
-      "description": "圖面轉版 10 大關鍵檢查項目與 ECO 生成",
-      "url": "./?tab=checklist",
-      "icons": [{ "src": "icons/icon.svg", "sizes": "192x192" }]
+      "name": "R&D 查核清單",
+      "short_name": "查核清單",
+      "description": "圖面轉版 14 項查核項目與 ECO 產生器",
+      "url": "./?tab=checklist"
     }
   ]
 }

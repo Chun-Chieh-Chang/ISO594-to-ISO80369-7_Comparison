@@ -24,7 +24,11 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run build
+      # Vite 建置本身不做型別檢查，故型別關卡必須是獨立步驟
+      - name: Type check
+        run: npm run lint
+      - name: Build
+        run: npm run build:only
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

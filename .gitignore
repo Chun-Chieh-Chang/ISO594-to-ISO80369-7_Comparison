@@ -6,3 +6,12 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# ISO 標準原文（單一使用者授權，禁止複製與網路散布）——永遠不得進版控
+isodoc/
+
+# FreeFileSync 同步資料庫
+*.ffs_db
+
+# 個人本機工具設定（launch.json 為共用開發設定，保留於版控）
+.claude/settings.local.json

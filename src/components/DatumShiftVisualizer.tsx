@@ -125,18 +125,26 @@ export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMateri
         </div>
       </div>
 
-      {/* 公差帶尺標：同一數線上並列兩種材料的新舊公差帶 */}
-      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-6">
-        <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
-          <h3 className="text-[13px] font-mono font-bold tracking-wider text-slate-700">
-            公差帶對照尺標
-          </h3>
-          <span className="text-[13px] font-mono text-slate-500">
-            {isMale ? '公接頭前端外徑' : '母錐開口內徑'}　{oldSymbol} → {newSymbol}
+      {/*
+        公差帶對照尺標 — 獨立深色圖表區。
+        此區塊刻意不隨全站淺色配色變動：深色底可讓公差帶色塊與位移標註的對比最大化，
+        數字並沿用 ISO 標準原文的逗號小數點記法，以利與紙本標準直接對照。
+      */}
+      <section
+        aria-label="公差帶對照尺標"
+        className="rounded-2xl bg-[#0F172A] p-5 sm:p-6 mb-6 shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
+      >
+        <div className="flex items-baseline justify-between gap-3 flex-wrap mb-4">
+          <div className="flex items-baseline gap-2.5">
+            <span className="font-mono text-[13px] font-bold text-[#34D399] tracking-widest">02</span>
+            <h3 className="text-base font-bold text-[#F1F5F9] tracking-tight">基準位移驗證</h3>
+          </div>
+          <span className="font-mono text-[13px] text-[#94A3B8]">
+            {isMale ? '公接頭前端外徑' : '母接頭開口內徑'}　{oldSymbol} → {newSymbol}
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="rounded-xl bg-[#151F32] border border-[#1E293B] p-4 sm:p-5 overflow-x-auto">
           <ToleranceBandChart
             groups={bandGroups}
             axisMin={axis.min}
@@ -148,13 +156,15 @@ export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMateri
           />
         </div>
 
-        <p className="text-[13px] text-slate-600 leading-relaxed mt-3 pt-3 border-t border-slate-200">
+        <p className="text-[13px] text-[#CBD5E1] leading-relaxed mt-4 rounded-xl border border-[#1E293B] bg-[#151F32] px-4 py-3">
           ISO 594-1 於{isMale ? '公錐「端面」量測 d' : '母錐「開口端面」量測 D'}；ISO 80369-7 改於「
-          {isMale ? '距端面' : '距開口內縮'} 0.750 mm 剖面」量測 {newSymbol}。因 6 % 錐度，公差帶上下限同步平移{' '}
-          {isMale ? '+' : '−'}0.045 mm，實體幾何未變。同一組關係在 {deepSymbol}（
-          {isMale ? '距端面' : '距開口'} 7.500 mm）上亦成立：6.75 × 0.06 = 0.405 mm。
+          {isMale ? '距端面' : '距開口內縮'} 0,750 mm 剖面」量測 {newSymbol}。因 6 % 錐度，公差帶上下限同步平移{' '}
+          {isMale ? '+' : '−'}0,045 mm，實體幾何未變。{isMale ? '母' : '公'}接頭方向相反（
+          {isMale ? 'ØD 為 −0,045 mm' : 'Ød 為 +0,045 mm'}）。同一組關係在 {deepSymbol}（
+          {isMale ? '距端面' : '距開口'} 7,500 mm）上亦成立：6,75 × 0,06 = 0,405 mm，四項數值全部吻合。
+          <span className="text-[#94A3B8]">　數字採標準原文之逗號小數點記法。</span>
         </p>
-      </div>
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-7 bg-slate-50 rounded-xl p-4 border border-slate-200 overflow-x-auto">

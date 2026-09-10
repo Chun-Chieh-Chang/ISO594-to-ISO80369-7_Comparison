@@ -13,5 +13,8 @@ isodoc/
 # FreeFileSync 同步資料庫
 *.ffs_db
 
+# AI Studio 本機工作目錄（非專案來源，靠子 .gitignore 阻斷，此處顯式補排）
+assets/
+
 # 個人本機工具設定（launch.json 為共用開發設定，保留於版控）
 .claude/settings.local.json

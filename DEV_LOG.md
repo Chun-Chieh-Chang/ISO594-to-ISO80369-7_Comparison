@@ -1,5 +1,52 @@
 # 專案開發與工程確效日誌 (DEV_LOG.md)
 
+## [2026-09-16] UI/UX 全面重構 — Inset Focus 凹凸光影設計系統 (v1.3.0)
+
+### 1. 背景
+參照同系列專案 ISO_80369-7_Navigation 之介面設計語言，以「Inset Focus」凹凸光影設計系統取代原有白色扁平卡片配色，提升工業醫療場景下的視覺階層清晰度。
+
+### 2. 設計系統架構
+採三層表面模型（Three-surface strata）：
+
+| 層級 | 變數 | 色值 | 語意 |
+|------|------|------|------|
+| 地面 | `--neo-bg` | `#e3e9f3` | 頁面底色 |
+| 浮起卡片 | `--neo-surface` | `#ecf1f9` | 內容卡片 |
+| 下沉托盤 | `--neo-inset` | `#d8e0ee` | 群組容器 / 輸入框 |
+| 主動藥丸 | `--neo-pill` | `#f4f7fd` | 活躍按鈕 |
+
+雙層陰影對（深色投影 + 白色高光）產生凹凸立體感，深色品牌導覽列 `--neo-header: #1a2744` 與淺色頁面形成強烈對比。
+
+### 3. 實作範圍
+**`src/index.css`**：
+- 新增 `:root` CSS 自訂屬性（`--neo-*` 十一個 token）
+- 新增工具類別 `.neo-card`、`.neo-tray`、`.neo-pill-active`、`.neo-input`
+- 引入 Inter 字型（Google Fonts）、自訂捲軸樣式
+
+**`index.html`**：新增 Inter Google Fonts preconnect 與 stylesheet
+
+**重構組件（共 9 個）**：`Header`、`App`、`DimensionTables`、`TestRequirementsTable`、`MaterialGuide`、`ActionChecklist`、`DimensionCalculator`、`MobileBottomNav`
+
+**刻意保留深色 slate 的組件**（overlay/toast 對比需求，非遺漏）：
+- `PwaInstallPrompt`：安裝指引 Modal 與 banner 變體
+- `PwaUpdateToast`：更新提示浮層
+- `EcoGeneratorModal`：ECO 產生器 Modal
+- `DatumShiftVisualizer` / `ToleranceBandChart`：固定深色圖表區（已於 v1.2.1/v1.2.2 記錄）
+
+### 4. 盤點清理
+- **移除** `metadata.json`（AI Studio 殘留樣板，無任何程式引用）
+- **更新** `package.json` 版本 `1.2.0` → `1.3.0`
+- **更新** `Header.tsx` UI 版本徽章 `v1.2.0` → `v1.3.0`
+- 版控追蹤檔由 32 個減至 31 個（`metadata.json` 移除）
+
+### 5. 驗證結果
+- [x] `tsc --noEmit`（strict 全開）：0 錯誤
+- [x] `vite build`：成功（CSS 42.87 kB gzip 8.42 kB；JS 364.43 kB gzip 106.34 kB）
+- [x] 瀏覽器實測：六個分頁、手機底部導覽、抽屜、ECO Modal 全數正常渲染
+- [x] 無 Console 錯誤
+
+---
+
 ## [2026-09-10] 項目全面整理作業 (v1.2.3)
 
 ### 1. 背景

@@ -346,12 +346,12 @@ export const DimensionCalculator: React.FC<Props> = ({
     return (
       <div key={field}>
         <div className="flex justify-between text-[13px] mb-1 gap-2">
-          <label htmlFor={`calc-${field}`} className="text-slate-800 font-bold">
+          <label htmlFor={`calc-${field}`} className="text-[var(--neo-text)] font-bold">
             {label}
           </label>
           <span
             className={`font-mono text-[13px] ${
-              hintTone === 'alert' ? 'text-rose-700 font-black' : 'text-slate-500'
+              hintTone === 'alert' ? 'text-rose-700 font-black' : 'text-[var(--neo-muted)]'
             }`}
           >
             {hint}
@@ -364,7 +364,7 @@ export const DimensionCalculator: React.FC<Props> = ({
           inputMode="decimal"
           value={typeof raw === 'number' ? raw : ''}
           onChange={(e) => setValue(field, readNumber(e.target.value) as never)}
-          className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] rounded-lg p-2 font-mono font-bold focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="neo-input w-full text-[13px] rounded-lg p-2 font-mono font-bold focus-visible:ring-2 focus-visible:ring-blue-500/40"
         />
       </div>
     );
@@ -400,42 +400,42 @@ export const DimensionCalculator: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 mb-6">
+    <div className="neo-card rounded-xl p-6 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--neo-border)] mb-6">
         <div>
-          <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+          <h2 className="text-xl font-black tracking-tight text-[var(--neo-text)] flex items-center gap-2">
             <Calculator className="w-5 h-5 text-emerald-600" />
             實測 / CAD 尺寸合規評估計算器
           </h2>
-          <p className="text-slate-600 text-[13px] mt-1">
-            輸入量測值後，系統會將其換算至<strong className="text-slate-900">兩個標準各自的基準面</strong>，再分別判定 —— 換算是雙向可逆的，切換量測剖面不會改變結論。
+          <p className="text-[var(--neo-muted)] text-[13px] mt-1">
+            輸入量測值後，系統會將其換算至<strong className="text-[var(--neo-text)]">兩個標準各自的基準面</strong>，再分別判定 —— 換算是雙向可逆的，切換量測剖面不會改變結論。
           </p>
         </div>
         <button
           onClick={resetDefaults}
-          className="text-[13px] font-mono font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 self-start sm:self-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="text-[13px] font-mono font-bold bg-[var(--neo-inset)] hover:brightness-95 text-[var(--neo-muted)] px-3 py-1.5 rounded-lg border border-[var(--neo-border)] flex items-center gap-1.5 self-start sm:self-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-slate-500" /> 重置預設數值
+          <RotateCcw className="w-3.5 h-3.5 text-[var(--neo-muted)]" /> 重置預設數值
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 輸入面板 */}
-        <div className="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-          <h3 className="text-[13px] font-black tracking-wider text-amber-900 font-mono flex items-center gap-1.5 pb-2 border-b border-slate-200">
+        <div className="lg:col-span-5 neo-tray p-4 rounded-xl border border-[var(--neo-border)] space-y-4">
+          <h3 className="text-[13px] font-black tracking-wider text-amber-900 font-mono flex items-center gap-1.5 pb-2 border-b border-[var(--neo-border)]">
             <Info className="w-4 h-4 text-amber-600" />
             1. 設定接頭條件與量測基準
           </h3>
 
           <div>
-            <label htmlFor="calc-category" className="text-[13px] text-slate-800 font-bold block mb-1">
+            <label htmlFor="calc-category" className="text-[13px] text-[var(--neo-text)] font-bold block mb-1">
               接頭類型（與尺寸比對表連動）
             </label>
             <select
               id="calc-category"
               value={category}
               onChange={(e) => onSelectCategory(e.target.value as ConnectorCategory)}
-              className="w-full bg-white border border-slate-300 text-slate-900 text-[13px] font-mono font-bold rounded-lg p-2.5 focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+              className="neo-input w-full text-[13px] font-mono font-bold rounded-lg p-2.5 focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
               {DIMENSIONS_DATA.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -444,12 +444,12 @@ export const DimensionCalculator: React.FC<Props> = ({
               ))}
             </select>
             {activeCategory && (
-              <p className="text-[13px] text-slate-500 font-mono mt-1">{activeCategory.standardRef}</p>
+              <p className="text-[13px] text-[var(--neo-muted)] font-mono mt-1">{activeCategory.standardRef}</p>
             )}
           </div>
 
           <div>
-            <span className="text-[13px] text-slate-800 font-bold block mb-1">材料剛性類別</span>
+            <span className="text-[13px] text-[var(--neo-text)] font-bold block mb-1">材料剛性類別</span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -459,7 +459,7 @@ export const DimensionCalculator: React.FC<Props> = ({
                 className={`py-2 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                   effectiveMaterial === 'semi-rigid'
                     ? 'bg-purple-100 text-purple-900 border-purple-500'
-                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                    : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'
                 }`}
               >
                 半剛性 (PP/PC)
@@ -471,7 +471,7 @@ export const DimensionCalculator: React.FC<Props> = ({
                 className={`py-2 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                   effectiveMaterial === 'rigid'
                     ? 'bg-blue-100 text-blue-900 border-blue-500'
-                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                    : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'
                 }`}
               >
                 剛性 (金屬/玻璃)
@@ -484,10 +484,10 @@ export const DimensionCalculator: React.FC<Props> = ({
             )}
           </div>
 
-          <fieldset className="bg-white p-3 rounded-lg border border-slate-200">
-            <legend className="text-[13px] text-slate-800 font-bold px-1">量測剖面 (Measurement Plane)</legend>
+          <fieldset className="neo-card p-3 rounded-lg">
+            <legend className="text-[13px] text-[var(--neo-text)] font-bold px-1">量測剖面 (Measurement Plane)</legend>
             <div className="space-y-1.5">
-              <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
+              <label className="flex items-center gap-2 text-[13px] text-[var(--neo-text)] cursor-pointer">
                 <input
                   type="radio"
                   name="datumMode"
@@ -496,10 +496,10 @@ export const DimensionCalculator: React.FC<Props> = ({
                   className="text-blue-600"
                 />
                 <span>
-                  ISO 80369-7 剖面：距端面 <strong className="text-slate-900 font-mono">0.750 mm</strong> 處
+                  ISO 80369-7 剖面：距端面 <strong className="text-[var(--neo-text)] font-mono">0.750 mm</strong> 處
                 </span>
               </label>
-              <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
+              <label className="flex items-center gap-2 text-[13px] text-[var(--neo-text)] cursor-pointer">
                 <input
                   type="radio"
                   name="datumMode"
@@ -508,17 +508,17 @@ export const DimensionCalculator: React.FC<Props> = ({
                   className="text-blue-600"
                 />
                 <span>
-                  ISO 594 剖面：<strong className="text-slate-900 font-mono">端面 (0.000 mm)</strong>
+                  ISO 594 剖面：<strong className="text-[var(--neo-text)] font-mono">端面 (0.000 mm)</strong>
                 </span>
               </label>
             </div>
-            <p className="text-[13px] text-slate-500 mt-2 pt-2 border-t border-slate-100 leading-relaxed">
+            <p className="text-[13px] text-[var(--neo-muted)] mt-2 pt-2 border-t border-[var(--neo-border)] leading-relaxed">
               此設定僅影響 Ød 與 ØD（唯二具基準差異的項目）。系統會同時換算出另一基準的等效值，兩個判定皆據各自基準計算。
             </p>
           </fieldset>
 
-          <div className="pt-2 border-t border-slate-200 space-y-3">
-            <h4 className="text-[13px] font-black tracking-wider text-slate-800 font-mono">
+          <div className="pt-2 border-t border-[var(--neo-border)] space-y-3">
+            <h4 className="text-[13px] font-black tracking-wider text-[var(--neo-text)] font-mono">
               2. 輸入量測數值 (mm)
             </h4>
 
@@ -566,23 +566,23 @@ export const DimensionCalculator: React.FC<Props> = ({
 
         {/* 結果面板 */}
         <div className="lg:col-span-7 space-y-4">
-          <h3 className="text-[13px] font-black tracking-wider text-emerald-800 font-mono flex items-center gap-1.5 pb-2 border-b border-slate-200">
+          <h3 className="text-[13px] font-black tracking-wider text-emerald-800 font-mono flex items-center gap-1.5 pb-2 border-b border-[var(--neo-border)]">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             3. 雙標準合規判定
           </h3>
 
           <div className="space-y-3">
             {results.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 text-[13px] bg-slate-50 font-mono rounded-xl border border-slate-200">
+              <div className="text-center py-12 text-[var(--neo-muted)] text-[13px] neo-tray font-mono rounded-xl border border-[var(--neo-border)]">
                 請在左側輸入量測數據以檢視審查結果。
               </div>
             ) : (
               results.map((res) => (
-                <div key={res.paramId} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                <div key={res.paramId} className="neo-tray p-4 rounded-xl border border-[var(--neo-border)] space-y-3">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 border-b border-[var(--neo-border)] pb-2">
                     <div>
-                      <span className="font-black text-slate-900 text-sm">{res.paramName}</span>
-                      <span className="text-[13px] text-slate-700 font-mono ml-2">
+                      <span className="font-black text-[var(--neo-text)] text-sm">{res.paramName}</span>
+                      <span className="text-[13px] text-[var(--neo-muted)] font-mono ml-2">
                         實測 <strong className="text-amber-800 font-black">{res.measuredValue} mm</strong>
                       </span>
                     </div>
@@ -609,27 +609,27 @@ export const DimensionCalculator: React.FC<Props> = ({
                   )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px] font-mono">
-                    <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-slate-500 block text-[13px] font-bold">ISO 594 許容範圍</span>
-                      <span className="text-slate-800 font-bold">{res.iso594Range}</span>
+                    <div className="neo-card p-2.5 rounded-lg">
+                      <span className="text-[var(--neo-muted)] block text-[13px] font-bold">ISO 594 許容範圍</span>
+                      <span className="text-[var(--neo-text)] font-bold">{res.iso594Range}</span>
                       {res.datumShiftApplied && (
-                        <span className="block text-slate-500 mt-0.5">
+                        <span className="block text-[var(--neo-muted)] mt-0.5">
                           比對值 {res.valueAt594Datum.toFixed(3)} mm
                         </span>
                       )}
                     </div>
-                    <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-slate-500 block text-[13px] font-bold">ISO 80369-7 許容範圍</span>
+                    <div className="neo-card p-2.5 rounded-lg">
+                      <span className="text-[var(--neo-muted)] block text-[13px] font-bold">ISO 80369-7 許容範圍</span>
                       <span className="text-emerald-800 font-bold">{res.iso80369Range}</span>
                       {res.datumShiftApplied && (
-                        <span className="block text-slate-500 mt-0.5">
+                        <span className="block text-[var(--neo-muted)] mt-0.5">
                           比對值 {res.valueAt80369Datum.toFixed(3)} mm
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="bg-white p-3 rounded-lg border border-slate-200 text-[13px] text-slate-800 leading-relaxed">
+                  <div className="neo-card p-3 rounded-lg text-[13px] text-[var(--neo-text)] leading-relaxed">
                     <strong className="text-amber-800 font-mono font-black">處置建議：</strong> {res.advice}
                   </div>
                 </div>

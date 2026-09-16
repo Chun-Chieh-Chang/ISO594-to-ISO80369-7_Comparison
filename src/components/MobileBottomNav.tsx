@@ -43,7 +43,8 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
     <>
       <nav
         aria-label="手機版快速導覽"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] px-3 pt-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-lg border-t border-[var(--neo-border)] shadow-[0_-2px_12px_rgba(140,158,192,0.2)] px-3 pt-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))]"
+        style={{ background: 'var(--neo-surface)' }}
       >
         <div className="grid grid-cols-5 items-center max-w-md mx-auto">
           {primaryTabs.map(({ id, shortLabel, icon: Icon }) => {
@@ -54,10 +55,10 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
                 onClick={() => handleSelectTab(id)}
                 aria-current={isActive ? 'page' : undefined}
                 className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
-                  isActive ? 'text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-700'
+                  isActive ? 'text-[var(--neo-text)] font-bold' : 'text-[var(--neo-muted)] hover:text-[var(--neo-text)]'
                 }`}
               >
-                <span className={`p-1.5 rounded-lg transition-colors ${isActive ? 'bg-slate-100' : ''}`}>
+                <span className={`p-1.5 rounded-lg transition-colors ${isActive ? 'neo-pill-active' : ''}`}>
                   <Icon className="w-5 h-5" aria-hidden="true" />
                 </span>
                 <span className={`text-[13px] leading-tight mt-0.5 ${isActive ? 'font-bold' : 'font-medium'}`}>
@@ -72,10 +73,10 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
             aria-expanded={showMoreDrawer}
             aria-haspopup="dialog"
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
-              isMoreActive ? 'text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-700'
+              isMoreActive ? 'text-[var(--neo-text)] font-bold' : 'text-[var(--neo-muted)] hover:text-[var(--neo-text)]'
             }`}
           >
-            <span className={`p-1.5 rounded-lg transition-colors ${isMoreActive ? 'bg-slate-100' : ''}`}>
+            <span className={`p-1.5 rounded-lg transition-colors ${isMoreActive ? 'neo-pill-active' : ''}`}>
               <MoreHorizontal className="w-5 h-5" aria-hidden="true" />
             </span>
             <span className={`text-[13px] leading-tight mt-0.5 ${isMoreActive ? 'font-bold' : 'font-medium'}`}>
@@ -97,18 +98,19 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
             aria-modal="true"
             aria-labelledby="more-drawer-title"
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-t-3xl border-t border-slate-200 p-5 shadow-2xl max-w-lg w-full mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] focus:outline-none"
+            className="rounded-t-3xl border-t border-[var(--neo-border)] p-5 shadow-2xl max-w-lg w-full mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] focus:outline-none"
+            style={{ background: 'var(--neo-surface)' }}
           >
-            <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mb-4" aria-hidden="true" />
+            <div className="w-12 h-1.5 bg-[var(--neo-inset)] rounded-full mx-auto mb-4" aria-hidden="true" />
 
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-              <h3 id="more-drawer-title" className="text-base font-black text-slate-900 flex items-center gap-2">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--neo-border)]">
+              <h3 id="more-drawer-title" className="text-base font-black text-[var(--neo-text)] flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-blue-600" aria-hidden="true" />
                 其他工程模組
               </h3>
               <button
                 onClick={() => setShowMoreDrawer(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                className="p-1.5 text-[var(--neo-muted)] hover:text-[var(--neo-text)] rounded-lg hover:bg-[var(--neo-inset)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                 aria-label="關閉選單"
               >
                 <X className="w-5 h-5" />
@@ -124,10 +126,10 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
                   className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                     activeTab === id
                       ? 'bg-blue-50 border-blue-200 text-blue-900 font-bold'
-                      : 'bg-slate-50 border-slate-200/80 text-slate-800 hover:bg-slate-100'
+                      : 'bg-[var(--neo-inset)] border-[var(--neo-border)] text-[var(--neo-text)] hover:brightness-95'
                   }`}
                 >
-                  <span className="p-2 bg-slate-900 text-white rounded-lg">
+                  <span className="p-2 bg-[var(--neo-header)] text-white rounded-lg">
                     <Icon className="w-4 h-4" aria-hidden="true" />
                   </span>
                   <span className="text-sm font-bold">{label}</span>
@@ -135,11 +137,11 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
               ))}
             </div>
 
-            <div className="pt-2 border-t border-slate-100 space-y-3">
+            <div className="pt-2 border-t border-[var(--neo-border)] space-y-3">
               <PwaInstallPrompt variant="banner" />
-              <div className="text-center text-[13px] text-slate-400 font-sans space-y-0.5 pt-1">
+              <div className="text-center text-[13px] text-[var(--neo-muted)] font-sans space-y-0.5 pt-1">
                 <div>
-                  Developed by <strong className="text-slate-600 font-semibold">Wesley Chang</strong> @Mouldex, Aug-2026.
+                  Developed by <strong className="text-[var(--neo-text)] font-semibold">Wesley Chang</strong> @Mouldex, Aug-2026.
                 </div>
                 <div>© 2026 Mouldex. All rights reserved.</div>
               </div>

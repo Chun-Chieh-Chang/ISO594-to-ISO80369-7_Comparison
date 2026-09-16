@@ -29,38 +29,47 @@ interface Props {
 
 export const Header: React.FC<Props> = ({ activeTab, setActiveTab }) => {
   return (
-    <header className="bg-white/95 backdrop-blur-md text-slate-900 border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+    <header
+      className="sticky top-0 z-30 border-b border-[rgba(255,255,255,0.08)]"
+      style={{ background: 'var(--neo-header)', boxShadow: '0 2px 20px rgba(15,25,60,0.35)' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-0.5">
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-[13px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 font-mono">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[13px] font-semibold bg-[rgba(255,255,255,0.12)] text-[#8fb8e8] border border-[rgba(255,255,255,0.15)] font-mono">
                 ISO 594 ➔ ISO 80369-7:2021
               </span>
-              <span className="text-slate-400 text-[13px] font-mono hidden lg:inline-block">
-                v1.2.0 ENGINEERING AUDIT
+              <span className="text-[#6a90b8] text-[13px] font-mono hidden lg:inline-block">
+                v1.3.0 ENGINEERING AUDIT
               </span>
             </div>
 
-            <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2 truncate">
+            <h1 className="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2 truncate">
               魯爾接頭圖面轉版工程審查系統
-              <span className="hidden sm:inline-block text-[13px] font-medium text-slate-500 font-sans">
+              <span className="hidden sm:inline-block text-[13px] font-medium text-[#6a90b8] font-sans">
                 Luer Medical Connector Audit Suite
               </span>
             </h1>
           </div>
 
           <nav aria-label="主導覽" className="hidden md:flex items-center gap-3">
-            <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/70 gap-0.5">
+            <div
+              className="flex items-center p-1 rounded-xl gap-0.5"
+              style={{
+                background: 'rgba(0,0,0,0.25)',
+                boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.3), inset -2px -2px 6px rgba(255,255,255,0.04)'
+              }}
+            >
               {TAB_DEFS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
                   aria-current={activeTab === id ? 'page' : undefined}
-                  className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                  className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,255,255,0.3)] ${
                     activeTab === id
-                      ? 'bg-white text-slate-900 shadow-xs font-bold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      ? 'bg-[rgba(255,255,255,0.16)] text-white font-bold shadow-[3px_3px_8px_rgba(0,0,0,0.25),-3px_-3px_8px_rgba(255,255,255,0.04)]'
+                      : 'text-[#7a9cc4] hover:text-white hover:bg-[rgba(255,255,255,0.08)]'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" aria-hidden="true" /> {label}

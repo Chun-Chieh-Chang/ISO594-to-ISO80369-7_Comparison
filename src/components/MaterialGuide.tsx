@@ -38,15 +38,13 @@ const CARDS = [
   }
 ];
 
-const ACCENT: Record<string, { border: string; activeBorder: string; chip: string; title: string }> = {
+const ACCENT: Record<string, { activeBorder: string; chip: string; title: string }> = {
   blue: {
-    border: 'border-slate-200',
     activeBorder: 'border-blue-500 ring-2 ring-blue-500/20',
     chip: 'bg-blue-100 text-blue-800 border-blue-300',
     title: 'text-blue-800'
   },
   purple: {
-    border: 'border-slate-200',
     activeBorder: 'border-purple-500 ring-2 ring-purple-500/20',
     chip: 'bg-purple-100 text-purple-800 border-purple-300',
     title: 'text-purple-800'
@@ -55,13 +53,13 @@ const ACCENT: Record<string, { border: string; activeBorder: string; chip: strin
 
 export const MaterialGuide: React.FC<Props> = ({ material, onSelectMaterial }) => {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8">
-      <div className="pb-4 border-b border-slate-200 mb-6">
+    <div className="neo-card rounded-xl p-6 mb-8">
+      <div className="pb-4 border-b border-[var(--neo-border)] mb-6">
         <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded text-[13px] font-mono font-black tracking-wider bg-purple-600 text-white mb-2">
           <Layers className="w-3.5 h-3.5" aria-hidden="true" /> ISO 80369-7:2021 Clause 3.7 / 3.8
         </div>
-        <h2 className="text-xl font-black tracking-tight text-slate-900">材料彈性模數分類</h2>
-        <p className="text-slate-600 text-[13px] mt-1 leading-relaxed max-w-3xl">
+        <h2 className="text-xl font-black tracking-tight text-[var(--neo-text)]">材料彈性模數分類</h2>
+        <p className="text-[var(--neo-muted)] text-[13px] mt-1 leading-relaxed max-w-3xl">
           舊版 ISO 594 僅以「玻璃與金屬為典型剛性材料、多數塑膠可視為半剛性」定性舉例；新版於術語定義中以彈性模數量化分界，並據此為部分尺寸給出兩組公差。點選卡片可切換全站的材料類別。
         </p>
       </div>
@@ -75,8 +73,8 @@ export const MaterialGuide: React.FC<Props> = ({ material, onSelectMaterial }) =
               key={card.id}
               onClick={() => onSelectMaterial(card.id)}
               aria-pressed={isActive}
-              className={`text-left bg-slate-50 p-5 rounded-xl border-2 space-y-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
-                isActive ? accent.activeBorder : `${accent.border} hover:border-slate-400`
+              className={`text-left neo-tray p-5 rounded-xl border-2 space-y-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                isActive ? accent.activeBorder : 'border-[var(--neo-border)] hover:border-[rgba(182,198,222,0.9)]'
               }`}
             >
               <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -88,19 +86,19 @@ export const MaterialGuide: React.FC<Props> = ({ material, onSelectMaterial }) =
                 </span>
               </div>
 
-              <p className="text-[13px] text-slate-700 leading-relaxed">{card.summary}</p>
+              <p className="text-[13px] text-[var(--neo-text)] leading-relaxed">{card.summary}</p>
 
-              <div className="text-[13px] text-slate-700 border-t border-slate-200 pt-3">
-                <span className="font-bold text-slate-800">代表材料：</span>
+              <div className="text-[13px] text-[var(--neo-text)] border-t border-[var(--neo-border)] pt-3">
+                <span className="font-bold text-[var(--neo-text)]">代表材料：</span>
                 {card.examples}
               </div>
 
               <table className="w-full text-[13px] font-mono tabular-nums">
                 <tbody>
                   {card.rows.map(([label, value]) => (
-                    <tr key={label} className="border-t border-slate-200/70">
-                      <td className="py-1.5 text-slate-600 pr-2">{label}</td>
-                      <td className="py-1.5 text-right font-bold text-slate-900">{value}</td>
+                    <tr key={label} className="border-t border-[rgba(182,198,222,0.4)]">
+                      <td className="py-1.5 text-[var(--neo-muted)] pr-2">{label}</td>
+                      <td className="py-1.5 text-right font-bold text-[var(--neo-text)]">{value}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -115,10 +113,10 @@ export const MaterialGuide: React.FC<Props> = ({ material, onSelectMaterial }) =
       </div>
 
       <div className="space-y-3">
-        <div className="bg-slate-50 border border-slate-300 p-4 rounded-xl text-[13px] text-slate-700 flex items-start gap-3">
-          <Ban className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" aria-hidden="true" />
+        <div className="neo-tray border border-[var(--neo-border)] p-4 rounded-xl text-[13px] text-[var(--neo-text)] flex items-start gap-3">
+          <Ban className="w-5 h-5 text-[var(--neo-muted)] shrink-0 mt-0.5" aria-hidden="true" />
           <div className="leading-relaxed">
-            <strong className="font-mono font-black text-slate-900 block mb-0.5">彈性模數低於 700 MPa：不在標準範圍內</strong>
+            <strong className="font-mono font-black text-[var(--neo-text)] block mb-0.5">彈性模數低於 700 MPa：不在標準範圍內</strong>
             ISO 594-1 與 ISO 80369-7 皆明確排除更柔軟或彈性體材料。Annex A 特別說明：以彈性體密封面構成的
             Luer 活化器材 (LAD，如無針接頭閥) 因材料較半剛性更軟且未完全符合 Clause 5 尺寸，並非本標準定義的
             Luer 接頭；標準建議此類產品仍應盡量採用防錯接特徵（材料 ≥ 700 MPa、ØH／ØJ／ØD／ØG 尺寸符合），

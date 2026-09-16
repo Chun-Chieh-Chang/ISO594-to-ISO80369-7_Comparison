@@ -69,34 +69,34 @@ export const TestRequirementsTable: React.FC = () => {
   );
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8">
-      <div className="pb-4 border-b border-slate-200 mb-5">
+    <div className="neo-card rounded-xl p-6 mb-8">
+      <div className="pb-4 border-b border-[var(--neo-border)] mb-5">
         <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded text-[13px] font-mono font-black tracking-wider bg-rose-600 text-white mb-2">
           <Gauge className="w-3.5 h-3.5" aria-hidden="true" /> QA/QC &amp; DV 實驗室 SOP
         </div>
-        <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900">
+        <h2 className="text-xl md:text-2xl font-black tracking-tight text-[var(--neo-text)]">
           效能與測試要求比對
         </h2>
-        <p className="text-slate-600 text-[13px] mt-1 leading-relaxed max-w-4xl">
+        <p className="text-[var(--neo-muted)] text-[13px] mt-1 leading-relaxed max-w-4xl">
           ISO 80369-7 引用 ISO 80369-20 之通用測試方法。舊版欄位依接頭型式分別列出{' '}
-          <strong className="text-slate-900">ISO 594-1（滑套）</strong>與{' '}
-          <strong className="text-slate-900">ISO 594-2（鎖固）</strong> —— 兩者對同一項目常有不同數值，
+          <strong className="text-[var(--neo-text)]">ISO 594-1（滑套）</strong>與{' '}
+          <strong className="text-[var(--neo-text)]">ISO 594-2（鎖固）</strong> —— 兩者對同一項目常有不同數值，
           查對時須依接頭型式引用正確的一本。
         </p>
       </div>
 
       {/* 篩選 */}
-      <div className="flex flex-wrap items-center gap-4 mb-5 pb-4 border-b border-slate-100">
+      <div className="flex flex-wrap items-center gap-4 mb-5 pb-4 border-b border-[var(--neo-border)]">
         <div className="flex items-center gap-2 flex-wrap">
-          <Filter className="w-4 h-4 text-slate-500" aria-hidden="true" />
-          <span className="text-[13px] font-bold text-slate-700">嚴重度</span>
+          <Filter className="w-4 h-4 text-[var(--neo-muted)]" aria-hidden="true" />
+          <span className="text-[13px] font-bold text-[var(--neo-text)]">嚴重度</span>
           <button
             onClick={() => setSeverityFilter('all')}
             aria-pressed={severityFilter === 'all'}
             className={`px-2.5 py-1 rounded-md text-[13px] font-mono font-bold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
               severityFilter === 'all'
-                ? 'bg-slate-900 text-white border-slate-900'
-                : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                ? 'bg-[var(--neo-text)] text-white border-[var(--neo-text)]'
+                : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'
             }`}
           >
             全部 ({TEST_REQUIREMENTS_DATA.length})
@@ -108,7 +108,7 @@ export const TestRequirementsTable: React.FC = () => {
               aria-pressed={severityFilter === sev}
               className={`px-2.5 py-1 rounded-md text-[13px] font-mono font-bold border transition-colors inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                 severityFilter === sev
-                  ? 'bg-slate-900 text-white border-slate-900'
+                  ? 'bg-[var(--neo-text)] text-white border-[var(--neo-text)]'
                   : SEVERITY_META[sev].chip + ' hover:brightness-95'
               }`}
             >
@@ -119,14 +119,14 @@ export const TestRequirementsTable: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="impact-filter" className="text-[13px] font-bold text-slate-700">
+          <label htmlFor="impact-filter" className="text-[13px] font-bold text-[var(--neo-text)]">
             影響區域
           </label>
           <select
             id="impact-filter"
             value={impactFilter}
             onChange={(e) => setImpactFilter(e.target.value as ImpactArea | 'all')}
-            className="bg-slate-50 border border-slate-300 text-slate-800 text-[13px] font-mono rounded-lg px-3 py-1.5 font-bold focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            className="neo-input text-[13px] font-mono rounded-lg px-3 py-1.5 font-bold focus-visible:ring-2 focus-visible:ring-blue-500/40"
           >
             <option value="all">全部 ({TEST_REQUIREMENTS_DATA.length})</option>
             {IMPACT_AREAS.map((area) => (
@@ -138,10 +138,10 @@ export const TestRequirementsTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200">
-        <table className="w-full text-left text-[13px] text-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-[var(--neo-border)]">
+        <table className="w-full text-left text-[13px] text-[var(--neo-text)]">
           <caption className="sr-only">ISO 594 與 ISO 80369-7 之效能與測試要求比對</caption>
-          <thead className="bg-slate-100 text-slate-700 font-black tracking-wider text-[13px] border-b border-slate-200">
+          <thead className="text-[var(--neo-text)] font-black tracking-wider text-[13px] border-b border-[var(--neo-border)]" style={{ background: 'var(--neo-inset)' }}>
             <tr>
               <th scope="col" className="py-3.5 px-4 w-1/5">
                 檢測項目
@@ -157,10 +157,10 @@ export const TestRequirementsTable: React.FC = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-[rgba(182,198,222,0.3)]" style={{ background: 'var(--neo-surface)' }}>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center py-8 text-slate-500 text-[13px] font-mono">
+                <td colSpan={4} className="text-center py-8 text-[var(--neo-muted)] text-[13px] font-mono">
                   沒有符合條件的檢測項目。
                 </td>
               </tr>
@@ -168,10 +168,10 @@ export const TestRequirementsTable: React.FC = () => {
               rows.map((item) => {
                 const meta = SEVERITY_META[item.severity];
                 return (
-                  <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={item.id} className="hover:bg-[var(--neo-inset)] transition-colors">
                     <td className={`py-4 px-4 border-l-4 ${meta.stripe}`}>
-                      <div className="font-black text-slate-900 text-sm">{item.testName}</div>
-                      <div className="text-[13px] font-mono text-slate-500 mt-0.5">{item.testNameEn}</div>
+                      <div className="font-black text-[var(--neo-text)] text-sm">{item.testName}</div>
+                      <div className="text-[13px] font-mono text-[var(--neo-muted)] mt-0.5">{item.testNameEn}</div>
                       <span
                         className={`inline-flex items-center gap-1 mt-2 text-[13px] px-2 py-0.5 rounded border font-mono font-bold ${meta.chip}`}
                       >
@@ -180,7 +180,7 @@ export const TestRequirementsTable: React.FC = () => {
                       </span>
                     </td>
 
-                    <td className="py-4 px-4 text-slate-700 text-[13px] leading-relaxed bg-slate-50/50">
+                    <td className="py-4 px-4 text-[var(--neo-muted)] text-[13px] leading-relaxed" style={{ background: 'rgba(216,224,238,0.3)' }}>
                       {item.iso594Spec}
                     </td>
 
@@ -189,10 +189,10 @@ export const TestRequirementsTable: React.FC = () => {
                     </td>
 
                     <td className="py-4 px-4 text-[13px]">
-                      <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
-                        <span className="text-slate-800 leading-relaxed block">{item.keyDifference}</span>
-                        <span className="text-slate-600 block pt-2 border-t border-slate-200">
-                          影響區域：<strong className="text-slate-900 font-bold">{item.impactArea}</strong>
+                      <div className="neo-tray p-3 rounded-lg space-y-2">
+                        <span className="text-[var(--neo-text)] leading-relaxed block">{item.keyDifference}</span>
+                        <span className="text-[var(--neo-muted)] block pt-2 border-t border-[var(--neo-border)]">
+                          影響區域：<strong className="text-[var(--neo-text)] font-bold">{item.impactArea}</strong>
                         </span>
                       </div>
                     </td>

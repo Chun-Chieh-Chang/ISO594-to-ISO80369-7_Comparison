@@ -6,28 +6,29 @@
 
 /* ── Inset Focus Design System ──────────────────────────────────────
    凹凸光影設計系統（參照 ISO_80369-7_Navigation）
-   Ground: cool blue-gray that frames elevated and inset surfaces.
-   Shadows: two-layer — cool-tinted dark cast + sharp white highlight.
+   Ground: sage-mint green that frames elevated and inset surfaces.
+   Shadows: two-layer — mint-tinted dark cast + sharp white highlight.
+   Palette anchors: 深墨綠 #1a3528 header / 浅薄荷綠 #5F8A75 accent.
    ──────────────────────────────────────────────────────────────────── */
 :root {
   /* Surface strata */
-  --neo-bg:       #e3e9f3;   /* page ground */
-  --neo-surface:  #ecf1f9;   /* elevated cards */
-  --neo-inset:    #d8e0ee;   /* sunken trays / inputs */
-  --neo-pill:     #f4f7fd;   /* active pill on a surface */
+  --neo-bg:       #dde8e2;   /* page ground — light sage mint */
+  --neo-surface:  #e5eeea;   /* elevated cards */
+  --neo-inset:    #d2e3db;   /* sunken trays / inputs */
+  --neo-pill:     #f0f6f3;   /* active pill on a surface */
 
   /* Two-layer shadow pair */
-  --neo-sd:       rgba(140, 158, 192, 0.48);
+  --neo-sd:       rgba(95, 138, 117, 0.42);
   --neo-sl:       rgba(255, 255, 255, 0.90);
 
   /* Header (dark branded bar) */
-  --neo-header:   #1a2744;
+  --neo-header:   #1a3528;
 
   /* Accent & type */
-  --neo-accent:   #3764d7;
-  --neo-border:   rgba(182, 198, 222, 0.55);
-  --neo-text:     #17263c;
-  --neo-muted:    #62778f;
+  --neo-accent:   #3a7a5f;
+  --neo-border:   rgba(152, 188, 168, 0.55);
+  --neo-text:     #162c22;
+  --neo-muted:    #5a7a68;
 }
 
 @layer base {
@@ -108,7 +109,7 @@
   box-shadow:
     inset  2px  2px  6px var(--neo-sd),
     inset -2px -2px  6px var(--neo-sl),
-    0 0 0 2.5px rgba(55, 100, 215, 0.22);
+    0 0 0 2.5px rgba(58, 122, 95, 0.25);
 }
 
 /* ── Custom scrollbar ─────────────────────────────────────────────── */
@@ -120,9 +121,9 @@
   background: var(--neo-inset);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(140, 158, 192, 0.55);
+  background: rgba(95, 138, 117, 0.55);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(140, 158, 192, 0.75);
+  background: rgba(95, 138, 117, 0.75);
 }

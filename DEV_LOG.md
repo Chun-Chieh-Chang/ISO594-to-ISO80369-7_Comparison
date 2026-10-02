@@ -1,5 +1,52 @@
 # 專案開發與工程確效日誌 (DEV_LOG.md)
 
+## [2026-10-02] 全面盤點與清理作業 (v1.4.3)
+
+### 1. 背景
+延續 v1.2.3 之盤點慣例，於 v1.4.x 動效落地後進行全面盤點：死碼與無效資源掃描、
+文件 SSOT 對齊、可攜式產物重打包與資安盤點。手術刀原則——只移除可證明死亡之物，
+零功能回歸。
+
+### 2. 盤點結果與處置
+**移除（死碼/死設定）**
+- `vite.config.ts`：`@` → `src` path alias 全站零引用，連同 `node:path`/`node:url`
+  輔助 import 一併移除（plugins 與 `base: './'` 不變）。
+
+**修正（無效/漂移資源）**
+- `public/sw.js`：快取名 `lueraudit-pwa-v1.2.0` → `lueraudit-pwa-v1.4.3`。
+  該常數之註解明言「須隨每次發版變更」，自 v1.2.0 起連續三個版本未更新，
+  導致 activate 清除舊快取機制從未觸發（stale-while-revalidate 掩蓋了症狀）。
+- `index.html` meta `theme-color` 與 `manifest.webmanifest` 之 `theme_color`/
+  `background_color`：`#0F172A`（v1.3.1 前之舊 slate 色）→ `#1a3528`（現行
+  `--neo-header`），PWA 狀態列/地址欄/啟動畫面與深墨綠導覽列恢復同構。
+- `package-lock.json`：版本欄位自 v1.2.3 起漂移（停留 1.2.0），以
+  `npm install --package-lock-only` 同步至 1.4.3；npm 同時補齊 lockfile 缺漏之
+  `@tailwindcss/oxide-wasm32-wasi` 巢狀 optional 依賴中繼（lockfileVersion 3 不變，
+  對 CI `npm ci` 更穩）。
+
+**內容層死碼掃描（零發現）**
+- `src/types.ts` 19 個匯出型別/常數、`src/data/*` 5 個匯出，逐一比對引用數：
+  全部存活（`ChangeTypeMeta`/`ConnectorCategoryData` 等低引用數者均為型別標註用途）。
+- 12 個元件皆有引用路徑；`tsc` `noUnusedLocals`/`noUnusedParameters` 持續把關區域死碼。
+
+**文件 SSOT 對齊**
+- `README.md`：技術棧之深色導覽列色票修正 `#1a2744` → `#1a3528`（v1.3.1 遺漏同步）；
+  補述 v1.4.x 互動動效與 40px 觸控熱區。
+- 本倉庫無 `docs/` 目錄、GitHub wiki 未啟用（遠端 404）——開發文件 SSOT 即
+  README / DEV_LOG / handoff / interaction-effects-plan 四檔，不另行虛建構（MECE）。
+- 已知設計債（刻意不動，避免主題級變更混入清理）：
+  Tailwind 藍色 accent（`ring-blue-500/40`、`bg-blue-600` 等）與 `--neo-accent`
+  並存，v1.3.1 遷移時刻意僅觸及 token 層；未來如統一需獨立版本節點處理。
+  iOS `apple-touch-icon` 指向 SVG（iOS 不支援）為既有限制，修正需新增 PNG 資產。
+
+### 3. 驗證結果
+- [x] `tsc --noEmit`：0 錯誤；`vite build`：成功
+- [x] Playwright 烟霧測試：六分頁渲染、無水平溢出、console 0 錯誤、
+  Header/底部導覽滑塊幾何不變、manifest/sw 請求 200
+- [x] 打包產物複測：`dist/` 重新生成覆蓋，theme-color 為 #1a3528，快取名 v1.4.3
+
+---
+
 ## [2026-10-02] UI 交互動效活化 + 全站觸控目標升級 (v1.4.0 – v1.4.2)
 
 ### 1. 背景

@@ -42,7 +42,8 @@
 ## 🛠️ 技術棧
 
 - **核心架構**：React 19 + TypeScript（`strict` 全開）+ Vite 6
-- **樣式**：Tailwind CSS 4 + Inset Focus 凹凸光影設計系統（CSS 自訂屬性 `--neo-*`；`.neo-card` / `.neo-tray` / `.neo-input` 工具類別；Inter 字型；深色導覽列 `--neo-header: #1a2744`）
+- **樣式**：Tailwind CSS 4 + Inset Focus 凹凸光影設計系統（CSS 自訂屬性 `--neo-*`；`.neo-card` / `.neo-tray` / `.neo-input` 工具類別；Inter 字型；深色導覽列 `--neo-header: #1a3528`）
+- **互動動效（v1.4.x）**：逐條入場 stagger、分頁轉場、表格展開動畫、導覽滑動指示條（桌機 Header ＋手機底部列）、聚光燈懸停、按壓回饋、數字滾動、回到頁首——全數僅用 `transform`/`opacity` 合成層，並支援 `prefers-reduced-motion` 降級；互動控制項熱區 ≥ 40px
 - **圖示**：Lucide React
 - **PWA**：原生 Service Worker（stale-while-revalidate）+ Web App Manifest
 - **CI/CD**：GitHub Actions 自動部署至 GitHub Pages，型別檢查為獨立必過關卡

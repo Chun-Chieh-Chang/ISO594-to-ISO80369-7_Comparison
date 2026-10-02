@@ -1,12 +1,12 @@
 # Handoff — ISO594-to-ISO80369-7_Comparison
 
-> 最後更新：2026-10-02（v1.4.2 底部導覽滑動指示條提交後）
+> 最後更新：2026-10-02（v1.4.3 全面盤點與清理後）
 
 ## 專案概要
 
 ISO 594 → ISO 80369-7 魯爾接頭圖面轉版工程審查系統（React 19 + Vite 6 + Tailwind v4，PWA）。
 設計系統：Inset Focus 凹凸光影（深墨綠/薄荷綠，`.neo-card` / `.neo-tray` / `.neo-pill-active` / `.neo-input`）。
-當前版本：**v1.4.2**。
+當前版本：**v1.4.3**。
 
 ## 最近完成：UI 交互動效活化（依 interaction-effects-plan.md 適配版）
 
@@ -77,6 +77,20 @@ Playwright 六分頁複測：sub-40px 控制項 = 0、無水平溢出。驗證�
   截圖 `.playwright-cli/qa-375-bottomnav.png`。
 - 測試腳本教訓：`grid.querySelectorAll(':scope > button > span')` 會把標籤 span 也算進去
   （每顆按鈕有晶片+標籤兩個 span），要以 `className.includes('rounded-lg')` 過濾出晶片。
+
+## v1.4.3 全面盤點與清理（2026-10-02）
+
+- 移除：`vite.config.ts` 的 `@` alias 死設定（零引用）
+- 修正：`sw.js` 快取名 v1.2.0→v1.4.3（自 v1.2.0 起未隨發版更新）、theme-color 三源
+  對齊 #1a3528（index.html + manifest theme_color/background_color）、
+  package-lock 版本漂移同步（1.2.0→1.4.3 + npm 補齊 optional 巢狀中繼）
+- 內容層死碼掃描：零發現（19 型別匯出 + 5 資料匯出全部存活）
+- README：色票 #1a2744→#1a3528 修正（v1.3.1 遺漏）、補述 v1.4.x 動效與 40px 熱區
+- docs/ 與 GitHub wiki 皆不存在 → 開發文件 SSOT = README + DEV_LOG + handoff +
+  interaction-effects-plan 四檔，不虛建構
+- 已知設計債（刻意不動）：Tailwind 藍 accent 與 --neo-accent 並存（v1.3.1 刻意僅動
+  token 層，統一需獨立節點）；iOS apple-touch-icon SVG 為 iOS 不支援之既有限制
+- 驗證：tsc/build 全綠、Playwright 六分頁烟霧（無溢出、console 0 錯、滑塊幾何不變）
 
 ## 關鍵上下文
 

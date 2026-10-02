@@ -1,6 +1,6 @@
 // ISO 594 → ISO 80369-7 Audit Suite — Service Worker
 // 快取名稱須隨每次發版變更，否則舊快取不會被清除。
-const CACHE_NAME = 'lueraudit-pwa-v1.2.0';
+const CACHE_NAME = 'lueraudit-pwa-v1.4.3';
 
 // 應用殼層。建置產物（帶雜湊的 JS/CSS）於首次載入時由 fetch 處理器寫入快取，
 // 因此離線可用的前提是「至少完整連網載入過一次」。

@@ -13,7 +13,6 @@ import {
   AlertCircle,
   ArrowUpRight,
   ChevronDown,
-  ChevronUp,
   Copy,
   Check,
   CornerDownRight,
@@ -146,7 +145,7 @@ export const DimensionTables: React.FC<Props> = ({
               setExpandedRowId(null);
             }}
             aria-pressed={selectedCategory === cat.id}
-            className={`px-3.5 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+            className={`px-3.5 py-2.5 rounded-lg text-[13px] font-bold tracking-wide neo-pressable transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
               selectedCategory === cat.id
                 ? 'bg-blue-600 text-white shadow-sm font-black'
                 : 'bg-[var(--neo-inset)] text-[var(--neo-text)] hover:bg-[var(--neo-bg)] border border-[var(--neo-border)]'
@@ -190,7 +189,7 @@ export const DimensionTables: React.FC<Props> = ({
                 onClick={() => onSelectMaterial('semi-rigid')}
                 disabled={activeCategoryData.rigidOnly}
                 aria-pressed={effectiveMaterial === 'semi-rigid'}
-                className={`px-3 py-1.5 rounded-lg text-[13px] font-bold border transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                className={`px-3 py-2.5 rounded-lg text-[13px] font-bold border transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                   effectiveMaterial === 'semi-rigid'
                     ? 'bg-purple-100 text-purple-900 border-purple-500'
                     : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'
@@ -202,7 +201,7 @@ export const DimensionTables: React.FC<Props> = ({
                 type="button"
                 onClick={() => onSelectMaterial('rigid')}
                 aria-pressed={effectiveMaterial === 'rigid'}
-                className={`px-3 py-1.5 rounded-lg text-[13px] font-bold border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                className={`px-3 py-2.5 rounded-lg text-[13px] font-bold border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                   effectiveMaterial === 'rigid'
                     ? 'bg-blue-100 text-blue-900 border-blue-500'
                     : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'
@@ -381,8 +380,8 @@ export const DimensionTables: React.FC<Props> = ({
                         <div className="inline-flex items-center gap-1.5">
                           <button
                             onClick={() => handleCopyRow(item)}
-                            className="p-1.5 text-[var(--neo-muted)] hover:text-amber-600 hover:bg-[var(--neo-inset)] rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
-                            aria-label={`複製 ${item.featureName} 的對照內容`}
+                className={`h-10 w-10 inline-flex items-center justify-center text-[var(--neo-muted)] hover:text-amber-600 hover:bg-[var(--neo-inset)] rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40`}
+                aria-label={`複製 ${item.featureName} 的對照內容`}
                             title={copyFailedId === item.id ? '複製失敗，請手動選取' : '複製此列數據'}
                           >
                             {copiedId === item.id ? (
@@ -395,12 +394,15 @@ export const DimensionTables: React.FC<Props> = ({
                           </button>
                           <button
                             onClick={() => setExpandedRowId(isExpanded ? null : item.id)}
-                            className="p-1.5 text-[var(--neo-muted)] hover:text-[var(--neo-text)] hover:bg-[var(--neo-inset)] rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                            className="h-10 w-10 inline-flex items-center justify-center text-[var(--neo-muted)] hover:text-[var(--neo-text)] hover:bg-[var(--neo-inset)] rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                             aria-expanded={isExpanded}
                             aria-controls={detailId}
                             aria-label={`${isExpanded ? '收合' : '展開'} ${item.featureName} 的工程解析`}
                           >
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                              aria-hidden="true"
+                            />
                           </button>
                         </div>
                       </td>
@@ -409,7 +411,7 @@ export const DimensionTables: React.FC<Props> = ({
                     {isExpanded && (
                       <tr className="border-t border-[var(--neo-border)]" style={{ background: 'var(--neo-inset)' }} id={detailId}>
                         <td colSpan={5} className="p-4">
-                          <div className="space-y-3 text-[13px]">
+                          <div className="row-expand-in space-y-3 text-[13px]">
                             {item.datumShiftNote && (
                               <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r text-amber-900 flex items-start gap-2.5">
                                 <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />

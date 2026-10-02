@@ -29,6 +29,9 @@
   --neo-border:   rgba(152, 188, 168, 0.55);
   --neo-text:     #162c22;
   --neo-muted:    #5a7a68;
+
+  /* Spotlight hover light — derived from the highlight tone */
+  --neo-spotlight: rgba(255, 255, 255, 0.30);
 }
 
 @layer base {
@@ -67,7 +70,7 @@
   box-shadow:
      6px  6px 15px var(--neo-sd),
     -6px -6px 15px var(--neo-sl);
-  transition: box-shadow 0.22s ease;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .neo-card:hover {
   box-shadow:
@@ -126,4 +129,108 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(95, 138, 117, 0.75);
+}
+
+/* ── Interaction Effect Animations ──────────────────────────────────
+   來源：G3\Frontend-Terms 術語手冊（interaction-effects-plan.md 適配版）
+   僅使用 transform + opacity（GPU 加速，避開 reflow）
+   ──────────────────────────────────────────────────────────────────── */
+
+/* Stagger — 逐條入場（卡片網格，配 animationDelay） */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stagger-card {
+  animation: fadeUp 0.5s ease-out backwards;
+}
+
+/* Page Transition — 分頁切換淡入上浮（React key 重掛載觸發） */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-transition {
+  animation: pageIn 0.4s ease-out;
+}
+
+/* Row Expand — 表格展開詳情列（<tr> 環境以掛載動畫代替 max-height 過渡） */
+@keyframes rowExpandIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.row-expand-in {
+  animation: rowExpandIn 0.28s ease-out;
+}
+
+/* Sliding Pill — 導覽滑動指示條（依量測位移 left/width） */
+.pill-slider {
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* 深色 Header 內的滑塊面色 */
+.pill-slider-dark {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow:
+     3px  3px  8px rgba(0, 0, 0, 0.25),
+    -3px -3px  8px rgba(255, 255, 255, 0.04);
+}
+
+/* Spotlight Hover — 聚光燈懸停（--mx/--my 由 onMouseMove 寫入） */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    200px circle at var(--mx, 50%) var(--my, 50%),
+    var(--neo-spotlight),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+@media (hover: hover) {
+  .spotlight-card:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Pressable — 互動卡片浮沉回饋（hover 預告上浮、active 按壓內縮）。
+   本專案 .neo-card 同時用於整頁大容器，故上浮不做在 .neo-card:hover，
+   改為互動元素級修飾類，避免滑鼠進入內容區時整頁浮動。 */
+.neo-pressable {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+.neo-pressable:hover {
+  transform: translateY(-2px);
+}
+.neo-pressable:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Reduced Motion — 使用者偏好減少動態時全部退場 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .stagger-card,
+  .page-transition,
+  .row-expand-in {
+    animation: none;
+  }
+  .pill-slider,
+  .spotlight-card::before,
+  .neo-pressable {
+    transition: none;
+  }
+  .neo-pressable:hover,
+  .neo-pressable:active {
+    transform: none;
+  }
 }

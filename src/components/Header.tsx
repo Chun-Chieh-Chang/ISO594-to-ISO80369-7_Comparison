@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { Cpu, Calculator, Gauge, Layers, CheckSquare, MoveHorizontal, LucideIcon } from 'lucide-react';
 import { PwaInstallPrompt } from './PwaInstallPrompt';
 
@@ -28,6 +28,26 @@ interface Props {
 }
 
 export const Header: React.FC<Props> = ({ activeTab, setActiveTab }) => {
+  // ── Sliding Pill：量測作用中分頁按鈕位置，滑塊跟隨移動 ──
+  const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const sliderStyleRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const activeIndex = TAB_DEFS.findIndex((t) => t.id === activeTab);
+      const btn = tabButtonRefs.current[activeIndex];
+      const slider = sliderStyleRef.current;
+      if (btn && slider) {
+        slider.style.left = `${btn.offsetLeft}px`;
+        slider.style.width = `${btn.offsetWidth}px`;
+        slider.style.opacity = '1';
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [activeTab]);
+
   return (
     <header
       className="sticky top-0 z-30 border-b border-[rgba(255,255,255,0.08)]"
@@ -41,7 +61,7 @@ export const Header: React.FC<Props> = ({ activeTab, setActiveTab }) => {
                 ISO 594 ➔ ISO 80369-7:2021
               </span>
               <span className="text-[#6a9e82] text-[13px] font-mono hidden lg:inline-block">
-                v1.3.0 ENGINEERING AUDIT
+                v1.4.0 ENGINEERING AUDIT
               </span>
             </div>
 
@@ -55,20 +75,28 @@ export const Header: React.FC<Props> = ({ activeTab, setActiveTab }) => {
 
           <nav aria-label="主導覽" className="hidden md:flex items-center gap-3">
             <div
-              className="flex items-center p-1 rounded-xl gap-0.5"
+              className="relative flex items-center p-1 rounded-xl gap-0.5"
               style={{
                 background: 'rgba(0,0,0,0.25)',
                 boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.3), inset -2px -2px 6px rgba(255,255,255,0.04)'
               }}
             >
-              {TAB_DEFS.map(({ id, label, icon: Icon }) => (
+              {/* 滑動指示條：跟隨作用中分頁移動，按鈕本身不再攜帶底色 */}
+              <div
+                ref={sliderStyleRef}
+                aria-hidden="true"
+                className="pill-slider pill-slider-dark absolute top-0 h-full rounded-lg"
+                style={{ left: 0, width: 0, opacity: 0, zIndex: 0 }}
+              />
+              {TAB_DEFS.map(({ id, label, icon: Icon }, idx) => (
                 <button
                   key={id}
+                  ref={(el) => { tabButtonRefs.current[idx] = el; }}
                   onClick={() => setActiveTab(id)}
                   aria-current={activeTab === id ? 'page' : undefined}
-                  className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,255,255,0.3)] ${
+                  className={`relative z-10 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-colors active:scale-[0.97] flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,255,255,0.3)] ${
                     activeTab === id
-                      ? 'bg-[rgba(255,255,255,0.16)] text-white font-bold shadow-[3px_3px_8px_rgba(0,0,0,0.25),-3px_-3px_8px_rgba(255,255,255,0.04)]'
+                      ? 'text-white font-bold'
                       : 'text-[#7aac8f] hover:text-white hover:bg-[rgba(255,255,255,0.08)]'
                   }`}
                 >

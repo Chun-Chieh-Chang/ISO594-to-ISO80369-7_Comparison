@@ -181,20 +181,20 @@ export const ActionChecklist: React.FC<Props> = ({ selectedCategory }) => {
             目前篩選條件下沒有查核項目。
           </li>
         ) : (
-          filteredItems.map((item) => {
+          filteredItems.map((item, idx) => {
             const risk = RISK_META[item.riskLevel];
             const targetLabel =
               item.targetConnector === 'all'
                 ? '全部接頭'
                 : DIMENSIONS_DATA.find((c) => c.id === item.targetConnector)?.tabLabel ?? item.targetConnector;
             return (
-              <li key={item.id}>
+              <li key={item.id} className="stagger-card" style={{ animationDelay: `${Math.min(idx * 0.05, 0.5)}s` }}>
                 <button
                   type="button"
                   role="checkbox"
                   aria-checked={item.completed}
                   onClick={() => toggleItem(item.id)}
-                  className={`w-full text-left p-4 rounded-xl border-2 border-l-4 transition-all flex items-start gap-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                  className={`w-full text-left p-4 rounded-xl border-2 border-l-4 neo-pressable transition-all flex items-start gap-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                     risk.stripe
                   } ${
                     item.completed

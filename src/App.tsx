@@ -8,6 +8,7 @@ import { ActionChecklist } from './components/ActionChecklist';
 import { MaterialGuide } from './components/MaterialGuide';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { PwaUpdateToast } from './components/PwaUpdateToast';
+import { BackToTop } from './components/BackToTop';
 import { DIMENSIONS_DATA } from './data/dimensionsData';
 import { CHANGE_TYPE_META, ChangeType, ConnectorCategory, MaterialType } from './types';
 import { ArrowRight } from 'lucide-react';
@@ -19,6 +20,37 @@ const CARD_ACCENT: Record<ChangeType, string> = {
   'new-feature': 'text-rose-700',
   downgraded: 'text-violet-700',
   removed: 'text-slate-600'
+};
+
+/** 數字滾動（Frontend-Terms: count-up）— 掛載時 0 → target，偏好減少動態時直接顯示終值 */
+function useCountUp(target: number, duration = 700): number {
+  const prefersReduced = () =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [value, setValue] = useState(() => (prefersReduced() ? target : 0));
+
+  useEffect(() => {
+    if (prefersReduced()) {
+      setValue(target);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(target * eased));
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+
+  return value;
+}
+
+const CountUp = ({ value, duration = 700 }: { value: number; duration?: number }) => {
+  const display = useCountUp(value, duration);
+  return <>{display}</>;
 };
 
 export function App() {
@@ -74,7 +106,7 @@ export function App() {
                 魯爾接頭圖面轉版工程審查要點
               </h2>
               <p className="text-[13px] text-[var(--neo-muted)] mt-1 leading-relaxed max-w-3xl">
-                Annex B 全部八張表共 <strong className="text-[var(--neo-text)] font-mono">{changeSummary.total}</strong> 項尺寸，
+                Annex B 全部八張表共 <strong className="text-[var(--neo-text)] font-mono"><CountUp value={changeSummary.total} /></strong> 項尺寸，
                 依「2D 圖面必須採取的動作」分為以下六類。此分類同時是尺寸比對表的篩選軸，兩處必然一致。
               </p>
             </div>
@@ -89,18 +121,24 @@ export function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-5">
-            {CHANGE_TYPE_META.map((meta) => (
+            {CHANGE_TYPE_META.map((meta, idx) => (
               <button
                 key={meta.id}
                 onClick={() => changeTab('tables')}
-                className="text-left p-3.5 rounded-xl neo-tray hover:brightness-[.97] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                className="stagger-card neo-pressable spotlight-card text-left p-3.5 rounded-xl neo-tray transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                style={{ animationDelay: `${idx * 0.08}s` }}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  e.currentTarget.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+                  e.currentTarget.style.setProperty('--my', `${e.clientY - rect.top}px`);
+                }}
               >
                 <div className="flex items-baseline justify-between gap-2 mb-1">
                   <span className={`text-[13px] font-mono font-bold tracking-wider ${CARD_ACCENT[meta.id]}`}>
                     {meta.optionLabel.split(' (')[1]?.replace(')', '') ?? meta.id}
                   </span>
                   <span className="font-mono text-lg font-black text-[var(--neo-text)] tabular-nums">
-                    {changeSummary.counts.get(meta.id) ?? 0}
+                    <CountUp value={changeSummary.counts.get(meta.id) ?? 0} />
                   </span>
                 </div>
                 <div className="text-sm font-bold text-[var(--neo-text)] mb-1">{meta.label}</div>
@@ -110,34 +148,39 @@ export function App() {
           </div>
         </section>
 
-        {activeTab === 'tables' && (
-          <DimensionTables
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            material={material}
-            onSelectMaterial={setMaterial}
-          />
-        )}
+        {/* key 變更 → unmount/remount → pageIn 動畫自動播放（無需動畫庫） */}
+        <div key={activeTab} className="page-transition">
+          {activeTab === 'tables' && (
+            <DimensionTables
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              material={material}
+              onSelectMaterial={setMaterial}
+            />
+          )}
 
-        {activeTab === 'visualizer' && <DatumShiftVisualizer material={material} onSelectMaterial={setMaterial} />}
+          {activeTab === 'visualizer' && <DatumShiftVisualizer material={material} onSelectMaterial={setMaterial} />}
 
-        {activeTab === 'calculator' && (
-          <DimensionCalculator
-            category={selectedCategory}
-            material={material}
-            onSelectCategory={setSelectedCategory}
-            onSelectMaterial={setMaterial}
-          />
-        )}
+          {activeTab === 'calculator' && (
+            <DimensionCalculator
+              category={selectedCategory}
+              material={material}
+              onSelectCategory={setSelectedCategory}
+              onSelectMaterial={setMaterial}
+            />
+          )}
 
-        {activeTab === 'tests' && <TestRequirementsTable />}
+          {activeTab === 'tests' && <TestRequirementsTable />}
 
-        {activeTab === 'materials' && <MaterialGuide material={material} onSelectMaterial={setMaterial} />}
+          {activeTab === 'materials' && <MaterialGuide material={material} onSelectMaterial={setMaterial} />}
 
-        {activeTab === 'checklist' && <ActionChecklist selectedCategory={selectedCategory} />}
+          {activeTab === 'checklist' && <ActionChecklist selectedCategory={selectedCategory} />}
+        </div>
       </main>
 
       <MobileBottomNav activeTab={activeTab} setActiveTab={changeTab} />
+
+      <BackToTop />
 
       <PwaUpdateToast />
 

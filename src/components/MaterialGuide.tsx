@@ -73,7 +73,7 @@ export const MaterialGuide: React.FC<Props> = ({ material, onSelectMaterial }) =
               key={card.id}
               onClick={() => onSelectMaterial(card.id)}
               aria-pressed={isActive}
-              className={`text-left neo-tray p-5 rounded-xl border-2 space-y-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+              className={`text-left neo-tray neo-pressable p-5 rounded-xl border-2 space-y-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                 isActive ? accent.activeBorder : 'border-[var(--neo-border)] hover:border-[rgba(182,198,222,0.9)]'
               }`}
             >

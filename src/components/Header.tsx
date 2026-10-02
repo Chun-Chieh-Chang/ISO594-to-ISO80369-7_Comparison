@@ -61,7 +61,7 @@ export const Header: React.FC<Props> = ({ activeTab, setActiveTab }) => {
                 ISO 594 ➔ ISO 80369-7:2021
               </span>
               <span className="text-[#6a9e82] text-[13px] font-mono hidden lg:inline-block">
-                v1.4.0 ENGINEERING AUDIT
+                v1.4.1 ENGINEERING AUDIT
               </span>
             </div>
 

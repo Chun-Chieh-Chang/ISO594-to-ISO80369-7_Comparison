@@ -62,7 +62,7 @@ export const EcoGeneratorModal: React.FC<Props> = ({ isOpen, onClose, items }) =
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="absolute top-4 right-4 h-10 w-10 inline-flex items-center justify-center text-slate-400 hover:text-slate-800 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
           aria-label="關閉"
         >
           <X className="w-5 h-5" />
@@ -109,13 +109,13 @@ export const EcoGeneratorModal: React.FC<Props> = ({ isOpen, onClose, items }) =
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-[13px] font-bold font-mono text-slate-600 hover:text-slate-900 bg-slate-100 rounded-lg border border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+              className="px-4 py-2.5 text-[13px] font-bold font-mono text-slate-600 hover:text-slate-900 bg-slate-100 rounded-lg border border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
               關閉
             </button>
             <button
               onClick={handleCopy}
-              className="px-4 py-2 text-[13px] font-black tracking-wider bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg border border-amber-400 flex items-center gap-2 shadow-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
+              className="px-4 py-2.5 text-[13px] font-black tracking-wider bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg border border-amber-400 flex items-center gap-2 shadow-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
             >
               {copyState === 'copied' ? (
                 <Check className="w-4 h-4" aria-hidden="true" />

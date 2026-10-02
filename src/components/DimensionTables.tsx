@@ -259,7 +259,7 @@ export const DimensionTables: React.FC<Props> = ({
             id="dim-filter"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as ChangeType | 'all')}
-            className="neo-input text-[13px] font-mono rounded-lg px-3 py-2.5 focus-visible:ring-2 focus-visible:ring-blue-500/40 font-bold"
+            className="neo-input text-[13px] font-mono rounded-lg px-3 py-2.5 min-h-[40px] focus-visible:ring-2 focus-visible:ring-blue-500/40 font-bold"
           >
             <option value="all">全部圖面動作 ({activeCategoryData.items.length})</option>
             {CHANGE_TYPE_META.map((meta) => (

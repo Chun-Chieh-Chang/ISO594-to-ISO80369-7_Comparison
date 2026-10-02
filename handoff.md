@@ -1,12 +1,12 @@
 # Handoff — ISO594-to-ISO80369-7_Comparison
 
-> 最後更新：2026-10-02（UI 動效活化任務完成後）
+> 最後更新：2026-10-02（v1.4.1 觸控目標修正提交後）
 
 ## 專案概要
 
 ISO 594 → ISO 80369-7 魯爾接頭圖面轉版工程審查系統（React 19 + Vite 6 + Tailwind v4，PWA）。
 設計系統：Inset Focus 凹凸光影（深墨綠/薄荷綠，`.neo-card` / `.neo-tray` / `.neo-pill-active` / `.neo-input`）。
-當前版本：**v1.4.0**（未 commit，工作區有未提交變更）。
+當前版本：**v1.4.1**。
 
 ## 最近完成：UI 交互動效活化（依 interaction-effects-plan.md 適配版）
 
@@ -48,10 +48,21 @@ ISO 594 → ISO 80369-7 魯爾接頭圖面轉版工程審查系統（React 19 + 
 
 ## 下一步建議
 
-1. **Commit**：用戶未要求 commit，變更仍在工作區。建議訊息方向：`feat(ui): activate 9 interaction effects per adapted interaction-effects-plan (v1.4.0)`
-2. PWA「安裝 App」按鈕 33px 觸控目標（PwaInstallPrompt）為既有問題，本次未動（不在方案範圍），可列後續
-3. DimensionCalculator / DatumShiftVisualizer 的材料切換按鈕（py-1.5，33px）同為既有小目標，可一併升級
-4. 手機底部導覽（MobileBottomNav）滑動指示條為可選後續（等寬 grid，效益低故未做）
+1. PWA「安裝 App」按鈕 33px 觸控目標（PwaInstallPrompt）為既有問題，本次未動（不在方案範圍），可列後續
+2. DimensionCalculator / DatumShiftVisualizer 的材料切換按鈕（py-1.5，33px）同為既有小目標，可一併升級
+3. 手機底部導覽（MobileBottomNav）滑動指示條為可選後續（等寬 grid，效益低故未做）
+
+## v1.4.1 後續修正（同日完成，已 commit）
+
+上述建議 1、2 已全部完成：全站互動控制項（按鈕/下拉選單）高度一律 ≥40px——
+PwaInstallPrompt（安裝鈕/立即安裝/對話框關閉鈕）、DatumShiftVisualizer（接頭側/材料切換）、
+DimensionCalculator（重置鈕/材料切換/分類 select）、TestRequirementsTable（嚴重度篩選/影響區域 select）、
+ActionChecklist（角色篩選/僅顯示核取/清除勾選鈕）、EcoGeneratorModal（關閉/頁尾按鈕）、PwaUpdateToast、
+DimensionTables 篩選 select。Header 桌機 tabs 為指標裝置專用（WCAG 2.5.8 24px 已達標）維持 33px 不變。
+Playwright 六分頁複測：sub-40px 控制項 = 0、無水平溢出。驗證時注意：`http.server` 會讓 index.html 進記憶體快取，
+複測須帶 `&_cb=$RANDOM` 繞過，否則量到舊 build。
+
+僅剩建議 3（MobileBottomNav 滑動指示條）為可選項，未實作。
 
 ## 關鍵上下文
 

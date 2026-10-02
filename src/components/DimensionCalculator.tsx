@@ -413,7 +413,7 @@ export const DimensionCalculator: React.FC<Props> = ({
         </div>
         <button
           onClick={resetDefaults}
-          className="text-[13px] font-mono font-bold bg-[var(--neo-inset)] hover:brightness-95 text-[var(--neo-muted)] px-3 py-1.5 rounded-lg border border-[var(--neo-border)] flex items-center gap-1.5 self-start sm:self-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="text-[13px] font-mono font-bold bg-[var(--neo-inset)] hover:brightness-95 text-[var(--neo-muted)] px-3 py-2.5 rounded-lg border border-[var(--neo-border)] flex items-center gap-1.5 self-start sm:self-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
         >
           <RotateCcw className="w-3.5 h-3.5 text-[var(--neo-muted)]" /> 重置預設數值
         </button>
@@ -435,7 +435,7 @@ export const DimensionCalculator: React.FC<Props> = ({
               id="calc-category"
               value={category}
               onChange={(e) => onSelectCategory(e.target.value as ConnectorCategory)}
-              className="neo-input w-full text-[13px] font-mono font-bold rounded-lg p-2.5 focus-visible:ring-2 focus-visible:ring-blue-500/40"
+              className="neo-input w-full text-[13px] font-mono font-bold rounded-lg p-2.5 min-h-[40px] focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
               {DIMENSIONS_DATA.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -456,7 +456,7 @@ export const DimensionCalculator: React.FC<Props> = ({
                 onClick={() => onSelectMaterial('semi-rigid')}
                 disabled={isRigidOnlyCat(category)}
                 aria-pressed={effectiveMaterial === 'semi-rigid'}
-                className={`py-2 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                className={`py-2.5 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                   effectiveMaterial === 'semi-rigid'
                     ? 'bg-purple-100 text-purple-900 border-purple-500'
                     : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'
@@ -468,7 +468,7 @@ export const DimensionCalculator: React.FC<Props> = ({
                 type="button"
                 onClick={() => onSelectMaterial('rigid')}
                 aria-pressed={effectiveMaterial === 'rigid'}
-                className={`py-2 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                className={`py-2.5 px-3 rounded-lg text-[13px] font-black tracking-wider border text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                   effectiveMaterial === 'rigid'
                     ? 'bg-blue-100 text-blue-900 border-blue-500'
                     : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'

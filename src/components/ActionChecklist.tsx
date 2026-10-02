@@ -113,7 +113,7 @@ export const ActionChecklist: React.FC<Props> = ({ selectedCategory }) => {
           </button>
           <button
             onClick={resetChecklist}
-            className="p-2.5 text-[var(--neo-muted)] hover:text-[var(--neo-text)] bg-[var(--neo-inset)] hover:brightness-95 rounded-lg border border-[var(--neo-border)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            className="h-10 w-10 inline-flex items-center justify-center text-[var(--neo-muted)] hover:text-[var(--neo-text)] bg-[var(--neo-inset)] hover:brightness-95 rounded-lg border border-[var(--neo-border)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             aria-label="清除所有勾選狀態"
             title="清除所有勾選狀態"
           >
@@ -155,7 +155,7 @@ export const ActionChecklist: React.FC<Props> = ({ selectedCategory }) => {
             key={f.id}
             onClick={() => setRoleFilter(f.id)}
             aria-pressed={roleFilter === f.id}
-            className={`px-3 py-1.5 rounded-lg text-[13px] font-mono font-black border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+            className={`px-3 py-2.5 rounded-lg text-[13px] font-mono font-black border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
               roleFilter === f.id ? f.active : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] hover:brightness-95 border-[var(--neo-border)]'
             }`}
           >
@@ -163,7 +163,7 @@ export const ActionChecklist: React.FC<Props> = ({ selectedCategory }) => {
           </button>
         ))}
 
-        <label className="ml-auto flex items-center gap-2 text-[13px] text-[var(--neo-text)] font-bold cursor-pointer neo-tray border border-[var(--neo-border)] rounded-lg px-3 py-1.5">
+        <label className="ml-auto flex items-center gap-2 text-[13px] text-[var(--neo-text)] font-bold cursor-pointer neo-tray border border-[var(--neo-border)] rounded-lg px-3 py-2.5">
           <input
             type="checkbox"
             checked={onlyCurrentConnector}

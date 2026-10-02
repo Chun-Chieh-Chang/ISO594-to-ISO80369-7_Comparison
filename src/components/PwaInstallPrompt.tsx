@@ -94,7 +94,7 @@ export const PwaInstallPrompt: React.FC<Props> = ({ className = '', variant = 'b
       {variant === 'button' ? (
         <button
           onClick={handleInstallClick}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-bold tracking-wider transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${className}`}
+          className={`inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-[13px] font-bold tracking-wider transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${className}`}
         >
           <Download className="w-3.5 h-3.5" aria-hidden="true" />
           <span>安裝 App</span>
@@ -114,7 +114,7 @@ export const PwaInstallPrompt: React.FC<Props> = ({ className = '', variant = 'b
           </div>
           <button
             onClick={handleInstallClick}
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[13px] font-black rounded-lg shrink-0 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="px-3 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-[13px] font-black rounded-lg shrink-0 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             立即安裝
           </button>
@@ -168,7 +168,7 @@ const InstallGuideDialog: React.FC<{ isIOS: boolean; onClose: () => void }> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="h-10 w-10 inline-flex items-center justify-center text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
             aria-label="關閉"
           >
             <X className="w-5 h-5" />

@@ -85,7 +85,7 @@ export const PwaUpdateToast: React.FC = () => {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleUpdate}
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[13px] font-black rounded-lg shadow transition-all flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="px-3 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-[13px] font-black rounded-lg shadow transition-all flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
             <span>立即更新</span>
@@ -93,7 +93,7 @@ export const PwaUpdateToast: React.FC = () => {
           <button
             onClick={() => setShowUpdate(false)}
             aria-label="關閉更新提示"
-            className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="h-10 w-10 inline-flex items-center justify-center text-slate-400 hover:text-white rounded-md hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             <X className="w-4 h-4" />
           </button>

@@ -89,7 +89,7 @@ export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMateri
                   key={s}
                   onClick={() => setSide(s)}
                   aria-pressed={side === s}
-                  className={`px-3.5 py-1.5 rounded-md text-[13px] font-bold tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                  className={`px-3.5 py-2.5 rounded-md text-[13px] font-bold tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                     side === s
                       ? s === 'male'
                         ? 'bg-blue-600 text-white font-black'
@@ -111,7 +111,7 @@ export const DatumShiftVisualizer: React.FC<Props> = ({ material, onSelectMateri
                   key={m}
                   onClick={() => onSelectMaterial(m)}
                   aria-pressed={material === m}
-                  className={`px-3.5 py-1.5 rounded-md text-[13px] font-bold tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                  className={`px-3.5 py-2.5 rounded-md text-[13px] font-bold tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                     material === m
                       ? 'bg-slate-900 text-white font-black'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'

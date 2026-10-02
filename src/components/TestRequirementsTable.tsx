@@ -93,7 +93,7 @@ export const TestRequirementsTable: React.FC = () => {
           <button
             onClick={() => setSeverityFilter('all')}
             aria-pressed={severityFilter === 'all'}
-            className={`px-2.5 py-1 rounded-md text-[13px] font-mono font-bold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+            className={`px-2.5 py-2.5 rounded-md text-[13px] font-mono font-bold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
               severityFilter === 'all'
                 ? 'bg-[var(--neo-text)] text-white border-[var(--neo-text)]'
                 : 'bg-[var(--neo-inset)] text-[var(--neo-muted)] border-[var(--neo-border)] hover:brightness-95'
@@ -106,7 +106,7 @@ export const TestRequirementsTable: React.FC = () => {
               key={sev}
               onClick={() => setSeverityFilter(sev)}
               aria-pressed={severityFilter === sev}
-              className={`px-2.5 py-1 rounded-md text-[13px] font-mono font-bold border transition-colors inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+              className={`px-2.5 py-2.5 rounded-md text-[13px] font-mono font-bold border transition-colors inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                 severityFilter === sev
                   ? 'bg-[var(--neo-text)] text-white border-[var(--neo-text)]'
                   : SEVERITY_META[sev].chip + ' hover:brightness-95'
@@ -126,7 +126,7 @@ export const TestRequirementsTable: React.FC = () => {
             id="impact-filter"
             value={impactFilter}
             onChange={(e) => setImpactFilter(e.target.value as ImpactArea | 'all')}
-            className="neo-input text-[13px] font-mono rounded-lg px-3 py-1.5 font-bold focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            className="neo-input text-[13px] font-mono rounded-lg px-3 py-2.5 min-h-[40px] font-bold focus-visible:ring-2 focus-visible:ring-blue-500/40"
           >
             <option value="all">全部 ({TEST_REQUIREMENTS_DATA.length})</option>
             {IMPACT_AREAS.map((area) => (

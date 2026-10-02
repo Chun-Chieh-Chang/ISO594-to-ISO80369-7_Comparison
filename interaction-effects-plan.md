@@ -341,7 +341,7 @@
 | #2 Page Transition | `App.tsx` 分頁內容區 | 相同 — `<div key={activeTab} className="page-transition">` 包 6 分頁 |
 | #3 Hover Lift | 全域 `.neo-card:hover` 位移 | **改寫** — 本專案 `.neo-card` 同時用於整頁大容器（6 個分頁根節點），全域位移會讓整頁浮動；改為 `.neo-pressable` 互動元素級回饋（hover `-2px` 預告 / active 按壓 `scale(0.98)`），`.neo-card:hover` 維持僅陰影加深 |
 | #4 Accordion | 圖表樹狀目錄 `max-height` 過渡 | **改寫** — 本專案無樹狀目錄；對應 `DimensionTables` 表格展開詳情列。`<tr>` 環境不適用 max-height 過渡，改為掛載動畫 `rowExpandIn`（展開淡入下落 0.28s）+ 箭頭 `rotate-180` 過渡 |
-| #5 Sliding Pill | Header Hub tabs + View Mode 切換器 | `Header.tsx` 桌機 6 分頁（refs 量測 offsetLeft/offsetWidth + resize 重測，滑塊樣式 `pill-slider-dark`）；分類頁籤因 flex-wrap 換行不適用，未套用 |
+| #5 Sliding Pill | Header Hub tabs + View Mode 切換器 | `Header.tsx` 桌機 6 分頁（refs 量測 offsetLeft/offsetWidth + resize 重測，滑塊樣式 `pill-slider-dark`）；分類頁籤因 flex-wrap 換行不適用，未套用。v1.4.2 補上 `MobileBottomNav` 滑塊（追蹤圖示晶片，getBoundingClientRect 對格線原點求差——按鈕為 positioned 時 chip.offsetLeft 不可用；桌機 `md:hidden` 量測為 0 自動隱藏） |
 | #6 Spotlight | 主題卡片 | `App.tsx` 六類變更卡片（光斑色改用本主題變量 `--neo-spotlight`，`@media (hover:hover)` 限定） |
 
 ### 7.2 Frontend-Terms 擴充項（原方案 6 項之外）

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ActiveTab, TAB_DEFS } from './Header';
 import { MoreHorizontal, Sparkles, X } from 'lucide-react';
 import { PwaInstallPrompt } from './PwaInstallPrompt';
@@ -15,9 +15,40 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
   const [showMoreDrawer, setShowMoreDrawer] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
 
+  // ── Sliding Pill：量測作用中圖示晶片位置，滑塊跟隨移動（保持原晶片視覺，僅動態化） ──
+  const chipRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
   const primaryTabs = TAB_DEFS.slice(0, PRIMARY_COUNT);
   const overflowTabs = TAB_DEFS.slice(PRIMARY_COUNT);
   const isMoreActive = overflowTabs.some((t) => t.id === activeTab);
+  const activeChipIndex = primaryTabs.findIndex((t) => t.id === activeTab) >= 0
+    ? primaryTabs.findIndex((t) => t.id === activeTab)
+    : primaryTabs.length; // 其餘分頁 →「更多」晶片
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const chip = chipRefs.current[activeChipIndex];
+      const slider = sliderRef.current;
+      if (!slider || !slider.parentElement) return;
+      if (chip && chip.offsetWidth > 0) {
+        // 按鈕本身為 positioned（relative z-10），chip.offsetLeft 相對按鈕而非格線，
+        // 故以 getBoundingClientRect 對格線原點求差值取得正確座標
+        const gridRect = slider.parentElement.getBoundingClientRect();
+        const chipRect = chip.getBoundingClientRect();
+        slider.style.left = `${chipRect.left - gridRect.left}px`;
+        slider.style.top = `${chipRect.top - gridRect.top}px`;
+        slider.style.width = `${chipRect.width}px`;
+        slider.style.height = `${chipRect.height}px`;
+        slider.style.opacity = '1';
+      } else {
+        slider.style.opacity = '0'; // 桌機 md:hidden 量測為 0，滑塊隱藏
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [activeChipIndex]);
 
   const handleSelectTab = (tab: ActiveTab) => {
     setActiveTab(tab);
@@ -46,19 +77,29 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-lg border-t border-[var(--neo-border)] shadow-[0_-2px_12px_rgba(140,158,192,0.2)] px-3 pt-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))]"
         style={{ background: 'var(--neo-surface)' }}
       >
-        <div className="grid grid-cols-5 items-center max-w-md mx-auto">
-          {primaryTabs.map(({ id, shortLabel, icon: Icon }) => {
+        <div className="relative grid grid-cols-5 items-center max-w-md mx-auto">
+          {/* 滑動指示條：跟隨作用中分頁的圖示晶片 */}
+          <div
+            ref={sliderRef}
+            aria-hidden="true"
+            className="neo-pill-active pill-slider absolute rounded-lg"
+            style={{ left: 0, top: 0, width: 0, height: 0, opacity: 0, zIndex: 0 }}
+          />
+          {primaryTabs.map(({ id, shortLabel, icon: Icon }, idx) => {
             const isActive = activeTab === id;
             return (
               <button
                 key={id}
                 onClick={() => handleSelectTab(id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+                className={`relative z-10 flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all active:scale-[0.97] select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                   isActive ? 'text-[var(--neo-text)] font-bold' : 'text-[var(--neo-muted)] hover:text-[var(--neo-text)]'
                 }`}
               >
-                <span className={`p-1.5 rounded-lg transition-colors ${isActive ? 'neo-pill-active' : ''}`}>
+                <span
+                  ref={(el) => { chipRefs.current[idx] = el; }}
+                  className="relative z-10 p-1.5 rounded-lg"
+                >
                   <Icon className="w-5 h-5" aria-hidden="true" />
                 </span>
                 <span className={`text-[13px] leading-tight mt-0.5 ${isActive ? 'font-bold' : 'font-medium'}`}>
@@ -72,11 +113,14 @@ export const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) =>
             onClick={() => setShowMoreDrawer(true)}
             aria-expanded={showMoreDrawer}
             aria-haspopup="dialog"
-            className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
+            className={`relative z-10 flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all active:scale-[0.97] select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
               isMoreActive ? 'text-[var(--neo-text)] font-bold' : 'text-[var(--neo-muted)] hover:text-[var(--neo-text)]'
             }`}
           >
-            <span className={`p-1.5 rounded-lg transition-colors ${isMoreActive ? 'neo-pill-active' : ''}`}>
+            <span
+              ref={(el) => { chipRefs.current[primaryTabs.length] = el; }}
+              className="relative z-10 p-1.5 rounded-lg"
+            >
               <MoreHorizontal className="w-5 h-5" aria-hidden="true" />
             </span>
             <span className={`text-[13px] leading-tight mt-0.5 ${isMoreActive ? 'font-bold' : 'font-medium'}`}>

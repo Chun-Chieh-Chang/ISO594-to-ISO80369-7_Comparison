@@ -1,12 +1,12 @@
 # Handoff — ISO594-to-ISO80369-7_Comparison
 
-> 最後更新：2026-10-02（v1.4.1 觸控目標修正提交後）
+> 最後更新：2026-10-02（v1.4.2 底部導覽滑動指示條提交後）
 
 ## 專案概要
 
 ISO 594 → ISO 80369-7 魯爾接頭圖面轉版工程審查系統（React 19 + Vite 6 + Tailwind v4，PWA）。
 設計系統：Inset Focus 凹凸光影（深墨綠/薄荷綠，`.neo-card` / `.neo-tray` / `.neo-pill-active` / `.neo-input`）。
-當前版本：**v1.4.1**。
+當前版本：**v1.4.2**。
 
 ## 最近完成：UI 交互動效活化（依 interaction-effects-plan.md 適配版）
 
@@ -63,6 +63,20 @@ Playwright 六分頁複測：sub-40px 控制項 = 0、無水平溢出。驗證�
 複測須帶 `&_cb=$RANDOM` 繞過，否則量到舊 build。
 
 僅剩建議 3（MobileBottomNav 滑動指示條）為可選項，未實作。
+
+## v1.4.2 底部導覽滑動指示條（同日完成，已 commit）
+
+`MobileBottomNav` 加入滑塊：保持原「圖示晶片浮起」視覺，僅將 `neo-pill-active` 從靜態晶片改為
+跟隨作用中分頁的滑塊（含「更多」態；抽屜分頁作用時滑至第 5 格）。要點與陷阱：
+
+- **量測陷阱**：按鈕需 `relative z-10` 蓋在滑塊（z-0）之上，但這使按鈕成為晶片的 offsetParent——
+  `chip.offsetLeft` 從「相對格線」變成「相對按鈕」（恆 19px），滑塊卡死。解法：`getBoundingClientRect`
+  對格線原點求差值，免疫於 offsetParent 變化。
+- 桌機 `md:hidden` 下量測為 0 → 滑塊 opacity 0 隱藏；resize 回行動尺寸自動重量測（resize 監聽）。
+- 驗證：375px 下滑塊 left 19→89→300→19 與晶片完全同步（含抽屜選「更多」態）、1280 隱藏、無溢出；
+  截圖 `.playwright-cli/qa-375-bottomnav.png`。
+- 測試腳本教訓：`grid.querySelectorAll(':scope > button > span')` 會把標籤 span 也算進去
+  （每顆按鈕有晶片+標籤兩個 span），要以 `className.includes('rounded-lg')` 過濾出晶片。
 
 ## 關鍵上下文
 

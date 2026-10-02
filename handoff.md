@@ -92,6 +92,18 @@ Playwright 六分頁複測：sub-40px 控制項 = 0、無水平溢出。驗證�
   token 層，統一需獨立節點）；iOS apple-touch-icon SVG 為 iOS 不支援之既有限制
 - 驗證：tsc/build 全綠、Playwright 六分頁烟霧（無溢出、console 0 錯、滑塊幾何不變）
 
+## 推送與上線紀錄（2026-10-02）
+
+- 9 個 commit（v1.4.0–v1.4.3 全部工作）已推送 origin/main（aa7c72e..2fc3f3e），
+  資安盤點通過後經用戶核准推送（ISO 原文 PDF 確認隔離、無秘密、無二進位追蹤檔）
+- GitHub Pages 部署成功（run 37007606383：build 23s + deploy 8s，CI 內獨立
+  tsc 檢查與 npm ci 用新 lockfile 通過——反向驗證 lock 修正）
+- 線上驗證：sw.js 快取名 v1.4.3、theme-color #1a3528 已上線
+- **CI 待辦**：deploy.yml 兩則棄用警告——(1) Node.js 20 棄用，actions/checkout@v4、
+  setup-node@v4、upload-artifact@v4 被強制跑 Node 24，建議升級 action 版本或
+  node-version 20→22/24；(2) ubuntu-latest 將於 2026-10-19 遷移 Ubuntu 26，
+  建議屆時釘選 ubuntu-24.04 或驗證相容。均為警告非錯誤，部署目前正常。
+
 ## 關鍵上下文
 
 - 兄弟專案 `D:\Self-developed_Apps\G1\ISO_80369-7_Navigation` 為同設計系統先例，滑塊/動效實作可互參

@@ -1,5 +1,96 @@
 # 專案開發與工程確效日誌 (DEV_LOG.md)
 
+## [2026-10-02] UI 交互動效活化 + 全站觸控目標升級 (v1.4.0 – v1.4.2)
+
+### 1. 背景
+依 `interaction-effects-plan.md`（源自 G3\Frontend-Terms 術語手冊，原為同系列專案
+ISO_80369-7_Navigation 撰寫並已於該專案落地）進行本專案之 UI 活化。經確認採「移植改寫」策略：
+保留 6 項核心動效框架，作用點依本專案實際結構重新映射，並自手冊擴充 3 項詞條，
+另依行動端品質門禁（mobile-responsive-audit）完成全站觸控目標升級。
+
+### 2. 實作內容
+
+**v1.4.0 — `feat(ui): 活化 9 項交互動效`**（commit `f7f3944`）
+- **Stagger 逐條入場**：首頁六類變更卡片（0.08s 遞延）＋ R&D 清單項（遞延上限 0.5s），
+  僅 `transform` + `opacity`（GPU 加速），`animation-fill-mode: backwards` 確保只播一次。
+- **Page Transition**：`App.tsx` 以 `key={activeTab}` 觸發重掛載 + `pageIn` 動畫（0.4s），免動畫庫。
+- **Accordion**：尺寸表展開詳情列改 `rowExpandIn` 掛載動畫（0.28s）＋ 箭頭 `rotate-180` 過渡。
+  原方案之 `max-height` 過渡不適用 `<tr>` 環境，為本專案改寫點之一。
+- **Sliding Pill**：`Header.tsx` 桌機六分頁滑動指示條（refs 量測 offsetLeft/offsetWidth、
+  resize 重測、`pill-slider-dark` 深色滑塊）。
+- **Spotlight Hover**：變更卡片徑向光斑，`--mx/--my` CSS 變數驅動，限 `@media (hover:hover)`，
+  光斑色走主題變量 `--neo-spotlight`。
+- **Pressable 浮沉回饋**（擴充 `button-press` 詞條）：hover `-2px` 預告、active 按壓 `scale(0.98)`。
+  原方案之全域 `.neo-card:hover` 位移在本專案會波及 6 個整頁大容器，故改為互動元素級 `.neo-pressable`，
+  為本專案改寫點之二。
+- **Count-up**（擴充）：`useCountUp` rAF hook，hero 統計數字滾動。
+- **Back-to-top**（擴充）：新元件 `BackToTop.tsx`，捲動逾 480px 浮現，避開手機底部導覽。
+- 全部動畫附 `prefers-reduced-motion` 降級（CSS `animation: none` ＋ JS 偵測）。
+- 內容層零接觸：`src/data/*`、`src/i18n/*`、`src/utils/*`、`src/types/*` 未動。
+
+**v1.4.1 — `fix(ui): 全站互動控制項觸控目標升級至 ≥40px`**（commit `526a210`）
+- 修正 12 處低於 40px 之控制項：`PwaInstallPrompt`（安裝鈕 33→41px、對話框關閉鈕 28→40px）、
+  `TestRequirementsTable`（嚴重度篩選 31→41px、兩處 select `min-h-[40px]`）、
+  `DatumShiftVisualizer`（接頭側/材料切換 33→41px）、`DimensionCalculator`（重置/材料/分類 select）、
+  `ActionChecklist`（角色篩選/核取標籤/清除鈕）、`EcoGeneratorModal`（關閉/頁尾）、`PwaUpdateToast`。
+- 刻意保留：Header 桌機 tabs 33px（僅指標裝置可見、WCAG 2.5.8 之 24px 已達標，
+  手機端走 48px 底部導覽）。
+
+**v1.4.2 — `feat(ui): 手機底部導覽加入滑動指示條`**（commit `6fadd03`）
+- 保持原「圖示晶片浮起」視覺，`neo-pill-active` 改為跟隨作用分頁之滑塊（含「更多」態，
+  抽屜分頁作用時滑至第 5 格）；桌機 `md:hidden` 量測為 0 時自動隱藏。
+- **工程陷阱記錄**：按鈕 `relative z-10` 化後成為晶片之 `offsetParent`，
+  `chip.offsetLeft` 變為相對按鈕（恆 19px）致滑塊卡死；改用 `getBoundingClientRect`
+  對格線原點求差值解決。此陷阱同步記錄於方案文件 7.1 節。
+
+### 3. 驗證結果
+- [x] `tsc --noEmit`（strict 全開）：0 錯誤；`vite build`：成功（JS 367 kB gzip 107 kB）
+- [x] 四視口（1280/768/390/375）水平溢出檢查：`scrollWidth <= innerWidth` 全數通過，console 0 錯誤
+- [x] 互動實證（Playwright）：Header 滑塊 left 與作用按鈕 offsetLeft 完全一致（4px→419px 跟隨）；
+  `pageIn`/`rowExpandIn`/`fadeUp` computed animation 生效；count-up 收斂 60 = 32+2+12+9+4+1；
+  back-to-top 點擊回頂並隱藏；375px 下與底部導覽無重疊（716 < 737）
+- [x] 底部導覽滑塊：375px 依序操作 left 19→89→300→19 與晶片座標（19/89/159/230/300）吻合；
+  1280px 隱藏
+- [x] `prefers-reduced-motion` 模擬：動畫 computed value 全轉 `none`
+- [x] 六分頁 sub-40px 控制項複測：0 筆
+- [x] 截圖存證：`.playwright-cli/qa-*.png`（已入 .gitignore）
+- 備註：驗證時 `python http.server` 會令 index.html 進記憶體快取，複測須帶 `&_cb=$RANDOM`
+  繞過，否則量得舊 build 假數據。
+
+---
+
+## [2026-09-16] 主色調由藍灰切換為深墨綠／薄荷綠色系 (v1.3.1)
+
+> 本節為 2026-10-02 補記（原 commit 漏寫日誌，沿用 v1.2.3 之補記慣例）。
+
+### 1. 背景
+v1.3.0 落地 Inset Focus 凹凸光影系統後，同日將全站主色調由藍灰（冷色科技調）遷移至
+深墨綠／薄荷鼠尾草（暖色植物調），使配色更貼近醫療審查工具之沉穩氣質。
+
+### 2. 實作內容（commit `aa7c72e`）
+`src/index.css` 色票遷移（11 個 token 中 10 個調整，僅 `--neo-sl` 白色高光不變）：
+
+| 變數 | 藍灰（v1.3.0） | 墨綠（v1.3.1） |
+|------|--------------|--------------|
+| `--neo-header` | `#1a2744` | `#1a3528` |
+| `--neo-bg` | `#e3e9f3` | `#dde8e2` |
+| `--neo-surface` | `#ecf1f9` | `#e5eeea` |
+| `--neo-inset` | `#d8e0ee` | `#d2e3db` |
+| `--neo-pill` | `#f4f7fd` | `#f0f6f3` |
+| `--neo-sd`（陰影） | `rgba(140,158,192,.48)` | `rgba(95,138,117,.42)` |
+| `--neo-accent` | `#3764d7` | `#3a7a5f` |
+| `--neo-border` | `rgba(182,198,222,.55)` | `rgba(152,188,168,.55)` |
+| `--neo-text` / `--neo-muted` | `#17263c` / `#62778f` | `#162c22` / `#5a7a68` |
+
+`src/components/Header.tsx`：陰影、標準碼徽章、版本文字、分頁文字同步改綠調；
+focus ring 與 scrollbar 配色一併更新。純 CSS 變數層遷移，無邏輯變更（2 檔案 +21 −20）。
+
+### 3. 驗證結果
+- 原 session 未留存驗證紀錄；以現行版本追溯驗證：`tsc` 0 錯誤、`vite build` 成功、
+  全站渲染正常（見 v1.4.0–v1.4.2 之驗證節），凹凸光影於綠色地基下階層清晰。
+
+---
+
 ## [2026-09-16] UI/UX 全面重構 — Inset Focus 凹凸光影設計系統 (v1.3.0)
 
 ### 1. 背景

@@ -16,12 +16,17 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # 釘選 24.04：ubuntu-latest 自 2026-10-19 起遷移 Ubuntu 26，避免未驗證映像
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: 20
+          # 本工作流 checkout 後無任何 git 寫入操作，不保留憑證（最小權限）
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          # Node 20 已於 2026-04 EOL；24 為現行 active LTS（Vite 6 要求 >=22）
+          node-version: 24
           cache: npm
       - run: npm ci
       # Vite 建置本身不做型別檢查，故型別關卡必須是獨立步驟
@@ -29,16 +34,16 @@ jobs:
         run: npm run lint
       - name: Build
         run: npm run build:only
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

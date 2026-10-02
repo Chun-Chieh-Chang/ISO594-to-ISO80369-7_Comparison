@@ -99,10 +99,11 @@ Playwright 六分頁複測：sub-40px 控制項 = 0、無水平溢出。驗證�
 - GitHub Pages 部署成功（run 37007606383：build 23s + deploy 8s，CI 內獨立
   tsc 檢查與 npm ci 用新 lockfile 通過——反向驗證 lock 修正）
 - 線上驗證：sw.js 快取名 v1.4.3、theme-color #1a3528 已上線
-- **CI 待辦**：deploy.yml 兩則棄用警告——(1) Node.js 20 棄用，actions/checkout@v4、
-  setup-node@v4、upload-artifact@v4 被強制跑 Node 24，建議升級 action 版本或
-  node-version 20→22/24；(2) ubuntu-latest 將於 2026-10-19 遷移 Ubuntu 26，
-  建議屆時釘選 ubuntu-24.04 或驗證相容。均為警告非錯誤，部署目前正常。
+- **CI 待辦 → 已完成（2026-10-02）**：deploy.yml 四 action 升級至最新主版本
+  （checkout v7 / setup-node v7 / upload-pages-artifact v5 / deploy-pages v5，
+  原生 Node 24）、node-version 20→24（20 已 EOL）、runs-on 釘選 ubuntu-24.04
+  （避開 10-19 的 ubuntu-latest→26 遷移）、checkout 加 persist-credentials: false。
+  推送後 run 全綠、棄用警告歸零、線上內容不變（v1.4.3）。
 
 ## 關鍵上下文
 

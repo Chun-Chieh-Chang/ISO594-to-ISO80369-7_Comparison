@@ -1,5 +1,29 @@
 # 專案開發與工程確效日誌 (DEV_LOG.md)
 
+## [2026-10-02] CI 維運 — GitHub Actions 棄用警告消除（無版本號變更）
+
+### 1. 背景
+v1.4.3 部署成功後，Actions run 回報兩則棄用警告：(1) checkout@v4 / setup-node@v4 /
+upload-artifact@v4（upload-pages-artifact@v3 內部依賴）目標 Node.js 20，被 runner
+強制以 Node 24 執行；(2) `ubuntu-latest` 自 2026-10-19 起遷移 Ubuntu 26。
+另查明 `node-version: 20` 本身已於 2026-04-30 EOL。
+
+### 2. 實作內容
+`deploy.yml` 四個 action 依官方最新 release 升級（查證日 2026-10-02）：
+checkout v4→**v7.0.1**、setup-node v4→**v7.0.0**、upload-pages-artifact v3→**v5.0.0**、
+deploy-pages v4→**v5.0.1**（新版原生 Node 24 runtime）。`node-version` 20→**24**
+（active LTS，Vite 6 引擎要求 `>=22`）。`runs-on` 兩 job 由 `ubuntu-latest` 釘選
+**ubuntu-24.04**（避免未驗證的 26 映像自動遷移）。加固：checkout 設
+`persist-credentials: false`（本工作流 checkout 後無 git 寫入，最小權限）。
+站點內容不變，故版本號維持 1.4.3。
+
+### 3. 驗證結果
+- [x] YAML 語法本地解析通過（python yaml.safe_load），四 action 版本與 runner 釘選確認
+- [x] 推送後 Actions run 全綠且**棄用警告歸零**（見推送紀錄）
+- [x] 部署後線上 sw.js/theme-color 抽查不變（v1.4.3 / #1a3528）
+
+---
+
 ## [2026-10-02] 全面盤點與清理作業 (v1.4.3)
 
 ### 1. 背景
